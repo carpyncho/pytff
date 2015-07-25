@@ -28,9 +28,6 @@ DESCRIPTION = "Wrapper arround G. Kovacs & G. Kupi Template Fourier Fitting"
 #==============================================================================
 
 if __name__ == "__main__":
-    import os
-    import sys
-
     from ez_setup import use_setuptools
     use_setuptools()
 
