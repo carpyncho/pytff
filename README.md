@@ -40,6 +40,7 @@ $ easy_install pytff
     or
 
     ```bash
+    $ pip install numpy
     $ python setup.py develop
     ```
 
