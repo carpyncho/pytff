@@ -197,8 +197,7 @@ class TFFCommand(object):
                 if buff and not line.startswith(" "):
                     yield tuple(buff)
                     buff = []
-                else:
-                    buff.extend(line.strip().split())
+                buff.extend(line.strip().split())
             if buff:
                 yield tuple(buff)
 
@@ -209,7 +208,6 @@ class TFFCommand(object):
         for idx in range(1, 16):
             fourier_dtypes.append(("A_{}".format(idx), np.float_))
             fourier_dtypes.append(("phi_{}".format(idx), np.float_))
-
         fourier = np.fromiter(gen(), dtype=fourier_dtypes)
         return fourier
 
@@ -237,13 +235,14 @@ class TFFCommand(object):
             buff, lineno = [], 0
             with open(self._match_dat_path) as fp:
                 for line in fp:
-                    buff.extend(line.strip().rsplit(None, 4))
-                    lineno += 1
-                    if lineno >= nmatch + 1:
-                        for row in proc_buff(buff):
-                            yield tuple(row)
-                        buff = []
-                        lineno = 0
+                    if line.strip():
+                        buff.extend(line.strip().rsplit(None, 4))
+                        lineno += 1
+                        if lineno >= nmatch + 1:
+                            for row in proc_buff(buff):
+                                yield tuple(row)
+                            buff = []
+                            lineno = 0
             if buff:
                 for row in proc_buff(buff):
                     yield tuple(row)
@@ -264,7 +263,7 @@ class TFFCommand(object):
     # CALL
     # =========================================================================
 
-    def analize(self, periods, times, values,
+    def analyze(self, periods, times, values,
                 ntbin=300, nmin=10, mindp=10, snr1min=10.0,
                 nmatch=10, dph=0.00001, asig=555.0, jfit=-1):
         """Run the tff analysis.
