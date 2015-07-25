@@ -1,5 +1,5 @@
 # pytff
-Wrapper arround Kovacs's Template Fourier Fitting
+Wrapper arround G. Kovacs & G. Kupi Template Fourier Fitting
 
 ## Setup
 
@@ -42,6 +42,14 @@ $ easy_install pytff
     ```bash
     $ python setup.py develop
     ```
+
+## Tutorial
+
+
+
+## Legal
+
+-   The data of `tff.par` and `template.dat` is property of G. Kovacs & G. Kupi
 
 
 
