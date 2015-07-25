@@ -14,7 +14,6 @@ import tempfile
 import hashlib
 import uuid
 from contextlib import contextmanager
-from collections import namedtuple
 
 import numpy as np
 
@@ -30,6 +29,23 @@ from . import constants
 class TFFCommand(object):
 
     def __init__(self, tff_path=constants.TFF_CMD, wrk_path=None, fmt="%.5f"):
+        """Creates a new instance of tff command
+
+        Params
+        ------
+
+        tff_path: str
+            Path to the compiled tff command (default: `"tff"`)
+        wrk_path: None or str
+            Path where the temporary files will be created, if is `None` a
+            temporary directory will be created. (default: `None`)
+        fmt: str
+            TFF uses files as inputs, internally the fmt is used to write your
+            input data as text files using this string to determine the
+            presicion of your floating point values. (default: `"%.5f"`)
+
+        """
+
         self._cmd = sh.Command(tff_path)
         self._fmt = fmt
 
@@ -85,10 +101,10 @@ class TFFCommand(object):
     # HELPERS
     # =========================================================================
 
-    def hash(self, data):
+    def _hash(self, data):
         return hashlib.sha1(data).hexdigest()
 
-    def clean(self, periods, times, values):
+    def _clean(self, periods, times, values):
         periods = np.asarray(periods)
         times = np.asarray(times)
         values = np.asarray(values)
@@ -102,7 +118,7 @@ class TFFCommand(object):
         elif tshape != vshape:
             raise ValueError("'times' and 'values' don have the same shape")
 
-        msg = ("'times' and 'values' and times must "
+        msg = ("'times' and 'values' must "
                "be 2d array with same number rows as elements in 'periods'")
         if not (len(tshape) == len(vshape) == 2):
             raise ValueError(msg)
@@ -134,7 +150,7 @@ class TFFCommand(object):
         params = apply_format(**kwargs)
         src = constants.TFF_PAR_TEMPLATE.format(**params).strip()
 
-        src_hash = self.hash(src)
+        src_hash = self._hash(src)
         if self._par_hash is None or self._par_hash != src_hash:
             with open(self._par_path, "w") as fp:
                 fp.write(src)
@@ -142,14 +158,14 @@ class TFFCommand(object):
 
     def _render_template_file(self):
         src = constants.TEMPLATE_DAT_SRC
-        src_hash = self.hash(src)
+        src_hash = self._hash(src)
         if self._template_hash is None or self._template_hash != src_hash:
             with open(self._template_path, "w") as fp:
                 fp.write(src)
             self._template_hash = src_hash
 
     def _render_target_file(self, target):
-        target_hash = self.hash(target)
+        target_hash = self._hash(target)
         if target_hash not in self._targets_cache:
             uid = unicode(uuid.uuid1())
             fname = "{}.dat".format(uid)
@@ -189,8 +205,8 @@ class TFFCommand(object):
         fourier_dtypes = [
             ("src_idx", np.intp), ("period", np.float_),
             ("epoch", np.float_), ("average_magnitude", np.float_),
-            ("number_of_data_points", np.float_), ("sigma_obs_fit", np.float_)]
-        for idx in range(1,16):
+            ("N_data_point", np.float_), ("sigma_obs_fit", np.float_)]
+        for idx in range(1, 16):
             fourier_dtypes.append(("A_{}".format(idx), np.float_))
             fourier_dtypes.append(("phi_{}".format(idx), np.float_))
 
@@ -244,7 +260,6 @@ class TFFCommand(object):
 
         return matchs
 
-
     # =========================================================================
     # CALL
     # =========================================================================
@@ -252,8 +267,97 @@ class TFFCommand(object):
     def analize(self, periods, times, values,
                 ntbin=300, nmin=10, mindp=10, snr1min=10.0,
                 nmatch=10, dph=0.00001, asig=555.0, jfit=-1):
+        """Run the tff analysis.
 
-        periods, targets = self.clean(periods, times, values)
+        Params
+        ------
+
+        periods: 1d-array-like
+            An array with all the periods of the sources.
+        times: 2d-array-like
+            Every row represents all the times of one source
+        values: 2d-array-like
+            Every row represents all the magnitudes of one source
+        ntbin: int
+            number of bins of the templates (default: 300)
+        nmin: int
+            minimum number of the template data points (default: 10)
+        mindp: int
+            minimum number of the target data points (default: 10)
+        snr1min: float
+            minimum SNR1 of the template time series (default: 10.0)
+        nmatch: int
+            number of the top best matching templates to be printed
+            (default: 10)
+        dph: float
+            templates are fitted with dph accuracy in phase (default: 0.00001)
+        asig: float
+            sigma clipping parameter for template and Fourier fits
+            (default: 555.0)
+        jfit: int
+            template polynomial degree (if jfit < 0, then optimized)
+            (default: -1)
+
+        The i-nth row of times must be has the same number of values i-nth row
+        of values.
+
+        Return
+        ------
+
+        tff_data: ndarray
+            Fourier decompositions, resulting from the TFF analysis.
+            Fields:
+
+            -   **src_idx:** In which index of periods, times and values is
+                the data used for generate this fourier decomposition.
+            -   **period:** The perdiod
+            -   **epoch:** The epoch
+            -   **average_magnitude:** average of values
+            -   **N_data_point:** Size of time and value
+            -   **sigma_obs_fit:** std deviation
+            -   **A_1, phi_1, A_2, phi_2, ..., A_15, phi_15** The fourier
+                components
+
+            Form of the Fourier decomposition:
+
+            ::
+
+                A_0 + A_1*sin(2*pi*(t(i)-Epoch)*1/Period+Phi_1)
+                      A_2*sin(2*pi*(t(i)-Epoch)*2/Period+Phi_2) +
+                      A_3*sin(2*pi*(t(i)-Epoch)*3/Period+Phi_3) + ...
+
+        dff_data: ndarray
+            Fourier decompositions, resulting from the DFF analysis.
+            Same fields as *tff_data*
+
+        match_data: ndarray
+            List of target/template matches. You gona have ``nmatch`` rows for
+            every source.
+            Fields:
+
+            -   **src_idx:** In which index of periods, times and values is
+                the data used for generate this match.
+            -   **match_rank:** value in between 1 and nmatch that represent
+                the importance of this match with the source (lower is better)
+            -   **src_period:** The period of the source.
+            -   **src_sigma_obs_fit:** std deviation of the source.
+            -   **order_of_the_template**
+            -   **snr:** is the signal-to-noise ratio of the template-fitted
+                light curve. ``SNR=AMP/(sigma/sqrt(n))``, where 'AMP' is the
+                total amplitude of the best fitting template, 'sigma' is the
+                standard deviation of the residuals between the target and
+                the template, 'n' is the number of the target data points.
+            -   **template_id**
+            -   **template_period**
+            -   **template_sigma_obs_fit:** std deviation of the templates.
+            -   **src_N_data_point:** Size of time and value.
+            -   **template_phi_31**
+
+        For more info please see:
+        http://www.konkoly.hu/staff/kovacs/tff_in_out.inf
+
+        """
+        periods, targets = self._clean(periods, times, values)
 
         # create the temp directories if its necesary
         if not os.path.isdir(self._targets_path):
@@ -277,9 +381,6 @@ class TFFCommand(object):
         match_data = self._load_match_dat(nmatch)
 
         return tff_data, dff_data, match_data
-
-    def __call__(self, *args, **kwargs):
-        return self.analize(*args, **kwargs)
 
 
 # =============================================================================
