@@ -22,20 +22,3 @@ For more info please check: http://www.konkoly.hu/staff/kovacs/tff.html
 import inspect
 
 from .core import TFFCommand
-
-# =============================================================================
-# CONSTANTS and confs
-# =============================================================================
-
-VERSION = ('0', '1')
-
-__version__ = ".".join(VERSION)
-
-
-# =============================================================================
-# FUNCTIONS
-# =============================================================================
-
-def get_version():
-    return __version__
-

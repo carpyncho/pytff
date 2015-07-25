@@ -17,8 +17,11 @@
 # CONSTANTS
 #==============================================================================
 
+VERSION = ('0', '1', '1')
+
 REQUIREMENTS = ["numpy>=1.9", "sh>=1.11"]
 
+DESCRIPTION = "Wrapper arround G. Kovacs & G. Kupi Template Fourier Fitting"
 
 #==============================================================================
 # FUNCTIONS
@@ -33,12 +36,10 @@ if __name__ == "__main__":
 
     from setuptools import setup, find_packages
 
-    import pytff
-
     setup(
         name="pytff",
-        version=pytff.get_version(),
-        description=pytff.__doc__.splitlines()[0],
+        version=".".join(VERSION),
+        description=DESCRIPTION,
         author="Juan BC",
         author_email="jbc.develop@gmail.com",
         url="https://github.com/carpyncho/pytff",
