@@ -60,5 +60,7 @@ This project is part of [Carpyncho](http://carpyncho.jbcabral.org)
 ## Authors
 
 Juan BC
+
 jbc.develop@gmail.com
+
 [IATE](http://iate.oac.uncor.edu/) - [UNR](http://unr.edu.ar/)
