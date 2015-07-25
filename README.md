@@ -46,7 +46,7 @@ $ easy_install pytff
 
 ## Tutorial
 
-
+https://github.com/carpyncho/pytff/wiki/Tutorial
 
 ## Legal
 
