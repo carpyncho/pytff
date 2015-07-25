@@ -9,8 +9,7 @@
 # DOC
 # =============================================================================
 
-__doc__ = """
-Wrapper arround G. Kovacs & G. Kupi Template Fourier Fitting
+"""Wrapper arround G. Kovacs & G. Kupi Template Fourier Fitting
 
 For more info please check: http://www.konkoly.hu/staff/kovacs/tff.html
 
