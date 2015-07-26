@@ -51,7 +51,6 @@ def do_publish():
     six.print_(sh.git.tag(a=STR_VERSION, m=msg))
 
     six.print_(sh.git.push("origin", "master", tags=True))
-    six.print_(sh.git.push("origin", "master"))
 
     six.print_(sh.python("setup.py", "sdist", "upload"))
 
