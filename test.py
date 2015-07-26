@@ -34,7 +34,7 @@ values = data[:,1].reshape(1, len(data[:,1]))
 tff_data, dff_data, match_data = tff.analyze(periods, times, values)
 tff_data
 tff_data[0]
-tff_data["period"]
+#~ assert tff_data["period"][0] == .63475
 
 
 
