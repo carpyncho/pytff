@@ -95,5 +95,3 @@ if __name__ == "__main__":
         do_publish()
     else:
         do_setup()
-
-
