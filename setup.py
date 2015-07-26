@@ -13,29 +13,56 @@
 
 """
 
+
+# =============================================================================
+# IMPORTS
+# =============================================================================
+
+import sys
+
+from ez_setup import use_setuptools
+use_setuptools()
+
+from setuptools import setup, find_packages
+
+
 #==============================================================================
 # CONSTANTS
 #==============================================================================
 
 VERSION = ('0', '2')
 
+STR_VERSION = ".".join(VERSION)
+
 REQUIREMENTS = ["numpy>=1.9", "sh>=1.11", "six==1.9"]
 
 DESCRIPTION = "Wrapper arround G. Kovacs & G. Kupi Template Fourier Fitting"
+
 
 #==============================================================================
 # FUNCTIONS
 #==============================================================================
 
-if __name__ == "__main__":
-    from ez_setup import use_setuptools
-    use_setuptools()
+def do_publish():
+    import sh
+    import six
 
-    from setuptools import setup, find_packages
+    six.print_(
+        sh.git.tag(a=version, m="version {}".format(STR_VERSION))
+    )
+    six.print_(
+        sh.git.push(tags=True)
+    )
+    six.print_(
+        sh.python("setup.py", "sdist", "upload")
+    )
+    six.print_("Published version {}".format(STR_VERSION))
 
+
+def do_setup():
     setup(
         name="pytff",
-        version=".".join(VERSION),
+        version=STR_VERSION,
         description=DESCRIPTION,
         author="Juan BC",
         author_email="jbc.develop@gmail.com",
@@ -62,3 +89,12 @@ if __name__ == "__main__":
         py_modules=["ez_setup"],
         install_requires=REQUIREMENTS,
     )
+
+
+if __name__ == "__main__":
+    if sys.argv[-1] == 'publish':
+        do_publish()
+    else:
+        do_setup()
+
+
