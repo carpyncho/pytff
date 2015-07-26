@@ -47,16 +47,15 @@ def do_publish():
     import sh
     import six
 
-    six.print_(
-        sh.git.tag(a=version, m="version {}".format(STR_VERSION))
-    )
-    six.print_(
-        sh.git.push(tags=True)
-    )
-    six.print_(
-        sh.python("setup.py", "sdist", "upload")
-    )
-    six.print_("Published version {}".format(STR_VERSION))
+    msg = "version {}".format(STR_VERSION)
+    six.print_(sh.git.tag(a=STR_VERSION, m=msg))
+
+    six.print_(sh.git.push(tags=True))
+
+    six.print_(sh.python("setup.py", "sdist", "upload"))
+
+    msg = "Published version {}".format(STR_VERSION)
+    six.print_(msg)
 
 
 def do_setup():
