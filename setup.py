@@ -19,7 +19,7 @@
 
 VERSION = ('0', '1', '1')
 
-REQUIREMENTS = ["numpy>=1.9", "sh>=1.11"]
+REQUIREMENTS = ["numpy>=1.9", "sh>=1.11", "six==1.9"]
 
 DESCRIPTION = "Wrapper arround G. Kovacs & G. Kupi Template Fourier Fitting"
 

@@ -19,6 +19,4 @@ For more info please check: http://www.konkoly.hu/staff/kovacs/tff.html
 # IMPORTS
 # =============================================================================
 
-import inspect
-
-from .core import TFFCommand
+from .core import TFFCommand  # noqa

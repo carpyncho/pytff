@@ -15,6 +15,8 @@ import hashlib
 import uuid
 from contextlib import contextmanager
 
+import six
+
 import numpy as np
 
 import sh
@@ -102,6 +104,8 @@ class TFFCommand(object):
     # =========================================================================
 
     def _hash(self, data):
+        if isinstance(data, six.text_type):
+            data = data.encode("utf8")
         return hashlib.sha1(data).hexdigest()
 
     def _clean(self, periods, times, values):
@@ -137,7 +141,7 @@ class TFFCommand(object):
 
         def apply_format(**kwargs):
             formated = {}
-            for k, v in kwargs.items():
+            for k, v in six.iteritems(kwargs):
                 if isinstance(v, float):
                     fvalue = self._fmt % v
                 else:
@@ -167,7 +171,7 @@ class TFFCommand(object):
     def _render_target_file(self, target):
         target_hash = self._hash(target)
         if target_hash not in self._targets_cache:
-            uid = unicode(uuid.uuid1())
+            uid = six.text_type(uuid.uuid1())
             fname = "{}.dat".format(uid)
             target_path = os.path.join(self._targets_path, fname)
             np.savetxt(target_path, target, fmt=self._fmt)
@@ -388,7 +392,8 @@ class TFFCommand(object):
 
 @contextmanager
 def cd(path):
-    original = os.getcwdu()
+    getcwd = getattr(os, "getcwd" if six.PY3 else "getcwdu")
+    original = getcwd()
     try:
         os.chdir(path)
         yield
