@@ -8,9 +8,9 @@ In all cases you need to download and compile
 parameters file (`tff.par`) and  the Template Fourier decompositions file
 (`template.dat`) are not necesary.
 
-You can compile the `tff.f` with the command
+You can compile (in posix) the `tff.f` with the command
 
-```bash
+```sh
 $ gfortran tff.f -o tff
 ```
 
@@ -18,13 +18,13 @@ $ gfortran tff.f -o tff
 
 Execute
 
-```bash
+```sh
 $ pip install pytff
 ```
 
 or
 
-```bash
+```sh
 $ easy_install pytff
 ```
 
@@ -33,13 +33,13 @@ $ easy_install pytff
 1.  Clone this repo and then inside the local
 2.  Execute
 
-    ```bash
+    ```sh
     $ pip install -e .
     ```
 
     or
 
-    ```bash
+    ```sh
     $ pip install numpy
     $ python setup.py develop
     ```
