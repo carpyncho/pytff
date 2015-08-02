@@ -16,16 +16,64 @@
 # IMPORTS
 # =============================================================================
 
+import sys
 import os
+
+from six.moves import configparser
 
 
 # =============================================================================
 # CONSTANTS
 # =============================================================================
 
-PATH = os.path.abspath(os.path.dirname(__file__))
+IS_WINDOWS = sys.platform.startswith("win")
 
-TFF_CMD = "tff"
+PRJ = "pytff"
+
+HOME_PATH = os.path.expanduser("~")
+
+APPDATA_PATH = os.getenv("APPDATA", HOME_PATH) if IS_WINDOWS else HOME_PATH
+
+CONF_DIR_PATH = (
+    os.path.join(APPDATA_PATH, PRJ)
+    if IS_WINDOWS else os.path.join(APPDATA_PATH, ".config", PRJ))
+
+CONF_FILE_PATH = os.path.join(CONF_DIR_PATH, "pytff.rc")
+
+DEFAULTS = {
+    "tff_cmd": "tff",
+    "wrk_path": None,
+}
+
+
+# ============================================================================
+# READ CONFIGURATION
+# =============================================================================
+
+if not os.path.isfile(CONF_FILE_PATH):
+    if not os.path.exists(CONF_DIR_PATH):
+        os.makedirs(CONF_DIR_PATH)
+    with open(CONF_FILE_PATH, "wb") as fp:
+
+        config = configparser.RawConfigParser()
+        config.add_section(PRJ)
+        for k, v in DEFAULTS.items():
+            v = "" if v is None else v
+            config.set(PRJ, k, v)
+        config.write(fp)
+
+config = configparser.RawConfigParser()
+config.read(CONF_FILE_PATH)
+config = dict(list(DEFAULTS.items()) + list(config.items(PRJ)))
+
+
+# =============================================================================
+# CONSTANTS
+# =============================================================================
+
+TFF_CMD = config["tff_cmd"]
+
+WRK_PATH = config["wrk_path"]
 
 LIS_FNAME = "target.lis"
 

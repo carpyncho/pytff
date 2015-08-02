@@ -51,7 +51,8 @@ class TFFCommand(object):
         self._cmd = sh.Command(tff_path)
         self._fmt = fmt
 
-        self._wrk_path = wrk_path or tempfile.mkdtemp(suffix="_tff")
+        self._wrk_path = (
+            wrk_path or constants.WRK_PATH or tempfile.mkdtemp(suffix="_tff"))
         self._targets_path = os.path.join(self._wrk_path, "targets")
 
         self._lis_path = os.path.join(self._wrk_path, constants.LIS_FNAME)
