@@ -24,7 +24,6 @@ times = np.random.rand(10, 50)
 values = np.random.rand(*times.shape)
 tff_data, dff_data, match_data = tff.analyze(periods, times, values)
 
-
 # ## Real Data Example
 
 data = np.loadtxt(os.path.join(PATH, "data", "ogle.dat"))

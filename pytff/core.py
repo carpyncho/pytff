@@ -206,23 +206,17 @@ class TFFCommand(object):
             if buff:
                 yield tuple(buff)
 
-        fourier_dtypes = [
-            ("src_idx", np.intp), ("period", np.float_),
-            ("epoch", np.float_), ("average_magnitude", np.float_),
-            ("N_data_point", np.float_), ("sigma_obs_fit", np.float_)]
-        for idx in range(1, 16):
-            fourier_dtypes.append(("A_{}".format(idx), np.float_))
-            fourier_dtypes.append(("phi_{}".format(idx), np.float_))
-        fourier = np.fromiter(gen(), dtype=fourier_dtypes)
-        return fourier
+        return gen()
 
     def _load_tff_dat(self):
         with open(self._tff_dat_path) as fp:
-            return self._read_fourier_dat(fp)
+            generator = self._read_fourier_dat(fp)
+            return self.process_tff_fourier(generator)
 
     def _load_dff_dat(self):
         with open(self._dff_dat_path) as fp:
-            return self._read_fourier_dat(fp)
+            generator = self._read_fourier_dat(fp)
+            return self.process_dff_fourier(generator)
 
     def _load_match_dat(self, nmatch):
 
@@ -252,6 +246,27 @@ class TFFCommand(object):
                 for row in proc_buff(buff):
                     yield tuple(row)
 
+        matchs = self.process_matchs(gen())
+        return matchs
+
+    # =========================================================================
+    # CALL
+    # =========================================================================
+
+    def process_tff_fourier(self, generator):
+        fourier_dtypes = [
+            ("src_idx", np.intp), ("period", np.float_),
+            ("epoch", np.float_), ("average_magnitude", np.float_),
+            ("N_data_point", np.float_), ("sigma_obs_fit", np.float_)]
+        for idx in range(1, 16):
+            fourier_dtypes.append(("A_{}".format(idx), np.float_))
+            fourier_dtypes.append(("phi_{}".format(idx), np.float_))
+        return np.fromiter(generator, dtype=fourier_dtypes)
+
+    def process_dff_fourier(self, generator):
+        return self.process_tff_fourier(generator)
+
+    def process_matchs(self, generator):
         match_dtypes = [
             ("src_idx", np.intp), ("match_rank", np.intp),
             ("src_period", np.float_), ("src_sigma_obs_fit", np.float_),
@@ -260,13 +275,7 @@ class TFFCommand(object):
             ("template_period", np.float_),
             ("template_sigma_obs_fit", np.float_),
             ("src_N_data_point", np.int_), ("template_phi_31", np.float_)]
-        matchs = np.fromiter(gen(), dtype=match_dtypes)
-
-        return matchs
-
-    # =========================================================================
-    # CALL
-    # =========================================================================
+        return np.fromiter(generator, dtype=match_dtypes)
 
     def analyze(self, periods, times, values,
                 ntbin=300, nmin=10, mindp=10, snr1min=10.0,
