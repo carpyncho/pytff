@@ -44,6 +44,28 @@ $ easy_install pytff
     $ python setup.py develop
     ```
 
+
+## Global Configuration
+
+You can edit the file `~/.config/pytff/pytff.rc` (on posix) or
+`~\APPDATA\roaming\pytff\pytff.rc` (on windows); for setup the
+location of your *tff* binary and your working directory. The file
+look like
+
+```ini
+[pytff]
+wrk_path =
+tff_cmd = tff
+```
+
+Where:
+
+-   `tff_cmd` is the full path to the tff command if is empty or not preset
+    *tff* is the default value.
+-   `wrk_path` the default working directory of tff, by default every
+    instance creates their own temp directory.
+
+
 ## Tutorial
 
 https://github.com/carpyncho/pytff/blob/master/tutorial.ipynb
