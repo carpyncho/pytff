@@ -30,7 +30,7 @@ from setuptools import setup, find_packages
 # CONSTANTS
 #==============================================================================
 
-VERSION = ('0', '3')
+VERSION = ('0', '4')
 
 STR_VERSION = ".".join(VERSION)
 
@@ -48,8 +48,11 @@ def do_publish():
     import six
 
     msg = "version {}".format(STR_VERSION)
+
+    six.print_(sh.git.commit(a=True, m=msg))
     six.print_(sh.git.tag(a=STR_VERSION, m=msg))
 
+    six.print_(sh.git.push("origin", "master"))
     six.print_(sh.git.push("origin", "master", tags=True))
 
     six.print_(sh.python("setup.py", "sdist", "upload"))
