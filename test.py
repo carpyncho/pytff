@@ -5,9 +5,9 @@
 # Part of Carpyncho - http://carpyncho.jbcabral.org
 
 
-#==============================================================================
+# =============================================================================
 # DOCS
-#==============================================================================
+# =============================================================================
 
 """This file is for test carpyncho pytff
 
@@ -110,6 +110,13 @@ class PyTFFCommandTest(unittest.TestCase):
             dff_data, ogle_dff_path, err_msg="dff is diferent")
         self.assertMatchEquals(
             match_data, ogle_match_path, err_msg="match is diferent")
+
+    def test_diferent_shape_data(self):
+        # this test only verify nothing blows up
+        periods = [1, 2]
+        times = [[0, 1, 2], [3, 4, 5, 6]]
+        values = [[0, 1, 2], [3, 4, 5, 7]]
+        self.tff.analyze(periods, times, values)
 
 
 # =============================================================================

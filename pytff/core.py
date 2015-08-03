@@ -111,9 +111,22 @@ class TFFCommand(object):
         return hashlib.sha1(data).hexdigest()
 
     def _clean(self, periods, times, values):
-        periods = np.asarray(periods)
-        times = np.asarray(times)
-        values = np.asarray(values)
+
+        def asarray(data):
+            arr = np.asarray(data)
+            if arr.dtype != np.object_:
+                return arr
+            maxdim = max(map(len, data))
+            arr = np.empty((arr.shape[0], maxdim))
+            arr.fill(np.nan)
+            for ridx, row in enumerate(data):
+                cols = np.arange(len(row))
+                arr[ridx, cols] = row
+            return arr
+
+        periods = asarray(periods)
+        times = asarray(times)
+        values = asarray(values)
 
         pshape = periods.shape
         tshape = times.shape
@@ -128,11 +141,10 @@ class TFFCommand(object):
                "be 2d array with same number rows as elements in 'periods'")
         if not (len(tshape) == len(vshape) == 2):
             raise ValueError(msg)
-        elif not (periods.shape[0] == times.shape[0] == values.shape[0]):
+        elif not (pshape[0] == tshape[0] == vshape[0]):
             raise ValueError(msg)
 
         targets = np.dstack((times, values))
-
         return periods, targets
 
     # =========================================================================
@@ -163,6 +175,10 @@ class TFFCommand(object):
             uid = six.text_type(uuid.uuid1())
             fname = "{}.dat".format(uid)
             target_path = os.path.join(self._targets_path, fname)
+
+            if np.any(np.isnan(target)):
+                target = target[~np.isnan(target).any(1)]
+
             np.savetxt(target_path, target, fmt=self._fmt)
             self._targets_cache[target_hash] = target_path
         return self.targets_cache[target_hash]
