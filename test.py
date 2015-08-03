@@ -58,7 +58,7 @@ class PyTFFCommandTest(unittest.TestCase):
     def setUp(self):
         self.tff = pytff.TFFCommand()
 
-    def assertFourierEquals(self, pytff_data, fpath):
+    def assertFourierEquals(self, pytff_data, fpath, **kwargs):
         original = ["0"]
         with open(fpath) as fp:
             reader = csv.reader(fp, delimiter=" ")
@@ -68,7 +68,29 @@ class PyTFFCommandTest(unittest.TestCase):
                 original += [e for e in line if e.strip()]
         for pytff_value, orig_value in six.moves.zip(pytff_data[0], original):
             orig_value = pytff_value.dtype.type(orig_value)
-            np.testing.assert_allclose(orig_value, pytff_value)
+            np.testing.assert_allclose(orig_value, pytff_value, **kwargs)
+
+    def assertMatchEquals(self, match_data, fpath, **kwargs):
+        original = []
+        with open(fpath) as fp:
+            reader = csv.reader(fp, delimiter=" ")
+            header = None
+            for lidx, line in enumerate(reader):
+                line = " ".join(line).strip().rsplit(None, 4)
+                if lidx == 0:
+                    header = line[1:]
+                else:
+                    original.append(["0", lidx] + header + line)
+
+        for mline, oline in six.moves.zip(match_data, original):
+            for mvalue, ovalue in six.moves.zip(mline, oline):
+                dtype = mvalue.dtype.type
+                ovalue = dtype(ovalue)
+                if dtype == np.string_:
+                    self.assertEquals(
+                        mvalue, ovalue, msg=kwargs.get("err_msg"))
+                else:
+                    np.testing.assert_allclose(ovalue, mvalue, **kwargs)
 
     def test_ogle_data(self):
         ogle_path = os.path.join(PATH, "data", "ogle.dat")
@@ -82,9 +104,12 @@ class PyTFFCommandTest(unittest.TestCase):
         tff_data, dff_data, match_data = self.tff.analyze(
             periods, times, values)
 
-        self.assertFourierEquals(tff_data, ogle_tff_path)
-        self.assertFourierEquals(dff_data, ogle_dff_path)
-        #~ self.assertMatchEquals(tff_data, ogle_match_path)
+        self.assertFourierEquals(
+            tff_data, ogle_tff_path, err_msg="tff is diferent")
+        self.assertFourierEquals(
+            dff_data, ogle_dff_path, err_msg="dff is diferent")
+        self.assertMatchEquals(
+            match_data, ogle_match_path, err_msg="match is diferent")
 
 
 # =============================================================================
