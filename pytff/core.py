@@ -140,20 +140,7 @@ class TFFCommand(object):
     # =========================================================================
 
     def _render_par_file(self, **kwargs):
-
-        def apply_format(**kwargs):
-            formated = {}
-            for k, v in six.iteritems(kwargs):
-                if isinstance(v, float):
-                    fvalue = self._fmt % v
-                else:
-                    fvalue = str(v)
-                while "." in fvalue and fvalue.endswith("0"):
-                    fvalue = fvalue[:-1]
-                formated[k] = fvalue
-            return formated
-
-        params = apply_format(**kwargs)
+        params = {k: (self._fmt % v) for k, v in six.iteritems(kwargs)}
         src = constants.TFF_PAR_TEMPLATE.format(**params).strip()
 
         src_hash = self._hash(src)

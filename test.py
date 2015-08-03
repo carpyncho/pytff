@@ -87,7 +87,7 @@ class PyTFFCommandTest(unittest.TestCase):
                 dtype = mvalue.dtype.type
                 ovalue = dtype(ovalue)
                 if dtype == np.string_:
-                    self.assertEquals(
+                    self.assertEqual(
                         mvalue, ovalue, msg=kwargs.get("err_msg"))
                 else:
                     np.testing.assert_allclose(ovalue, mvalue, **kwargs)
