@@ -76,7 +76,7 @@ This project is part of [Carpyncho](http://carpyncho.jbcabral.org)
 
 -   The data of `tff.par` and `template.dat` is property of G. Kovacs
     & G. Kupi
--   The `data/ogle.dat` is property of the
+-   The `data/single_dat/ogle.dat` is property of the
     [OGLE Experiment](http://ogle.astrouw.edu.pl/)
 
 
