@@ -13,6 +13,8 @@ import os
 import tempfile
 import hashlib
 import uuid
+import atexit
+import shutil
 from contextlib import contextmanager
 
 import six
@@ -52,8 +54,18 @@ class TFFCommand(object):
 
         self._fmt = fmt
 
-        self._wrk_path = (
-            wrk_path or constants.WRK_PATH or tempfile.mkdtemp(suffix="_tff"))
+        if wrk_path:
+            self._wrk_path = wrk_path
+            self._clean_wrk_path = False
+        elif constants.WRK_PATH:
+            self._wrk_path = constants.WRK_PATH
+            self._clean_wrk_path = False
+        else:
+            self._wrk_path = tempfile.mkdtemp(suffix="_tff")
+            self._clean_wrk_path = True
+            atexit.register(
+                shutil.rmtree, path=self._wrk_path, ignore_errors=True)
+
         self._targets_path = os.path.join(self._wrk_path, "targets")
 
         self._lis_path = os.path.join(self._wrk_path, constants.LIS_FNAME)
@@ -80,6 +92,10 @@ class TFFCommand(object):
 
     def __repr__(self):
         return "{} -> {}".format(repr(self._cmd), self._wrk_path)
+
+    def __del__(self):
+        if self._clean_wrk_path:
+            shutil.rmtree(self._wrk_path, ignore_errors=True)
 
     # =========================================================================
     # GETTERS

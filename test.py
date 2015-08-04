@@ -21,6 +21,8 @@
 import os
 import unittest
 import csv
+import tempfile
+import shutil
 
 import six
 
@@ -119,6 +121,22 @@ class PyTFFCommandTest(unittest.TestCase):
         values = [[0, 1, 2], [3, 4, 5, 7]]
         self.tff.analyze(periods, times, values)
 
+    def test_wrkpath_is_removed_when_is_temp(self):
+        # remove clasic temp
+        path = self.tff.wrk_path
+        self.assertTrue(os.path.exists(path) and os.path.isdir(path))
+        del self.tff
+        self.assertFalse(os.path.exists(path) and os.path.isdir(path))
+
+        # custom seted dir need to be preserved
+        path = tempfile.mkdtemp(suffix="_tff_test")
+
+        self.tff = pytff.TFFCommand(wrk_path=path)
+        self.assertTrue(os.path.exists(path) and os.path.isdir(path))
+        del self.tff
+        self.assertTrue(os.path.exists(path) and os.path.isdir(path))
+
+        shutil.rmtree(path, True)
 
 # =============================================================================
 # MAIN
