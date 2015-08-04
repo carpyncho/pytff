@@ -404,9 +404,7 @@ class TFFCommand(object):
             nmatch=nmatch, dph=dph, asig=asig, jfit=jfit)
 
         with cd(self._wrk_path):
-            proc = self._cmd(
-                constants.TEMPLATE_FNAME, constants.LIS_FNAME,
-                constants.PAR_FNAME)
+            proc = self._cmd()
             proc.wait()
 
         tff_data = self._load_tff_dat()
