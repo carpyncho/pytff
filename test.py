@@ -92,12 +92,12 @@ class PyTFFCommandTest(unittest.TestCase):
                 else:
                     np.testing.assert_allclose(ovalue, mvalue, **kwargs)
 
-    def test_ogle_data(self):
+    def test_single_data(self):
         data_path = os.path.join(PATH, "data", "single_dat")
         ogle_path = os.path.join(data_path, "ogle.dat")
-        ogle_tff_path = os.path.join(data_path, "ogle_tff.dat")
-        ogle_dff_path = os.path.join(data_path, "ogle_dff.dat")
-        ogle_match_path = os.path.join(data_path, "ogle_match.dat")
+        ogle_tff_path = os.path.join(data_path, "tff.dat")
+        ogle_dff_path = os.path.join(data_path, "dff.dat")
+        ogle_match_path = os.path.join(data_path, "match.dat")
 
         times, values = pytff.loadtarget(ogle_path)
         periods = np.array([0.6347522])
