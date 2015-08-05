@@ -502,5 +502,5 @@ def stack_targets(times, values):
         return np.vstack(adjusted)
 
     return (
-        stack(times) if times is not None else None,
-        stack(values) if values is not None else None)
+        stack(times) if times else np.array([]),
+        stack(values) if values else np.array([]))
