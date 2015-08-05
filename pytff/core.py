@@ -228,17 +228,17 @@ class TFFCommand(object):
 
         return gen()
 
-    def _load_tff_dat(self):
-        with open(self._tff_dat_path) as fp:
+    def load_tff_dat(self, path):
+        with open(path) as fp:
             generator = self._read_fourier_dat(fp)
             return self.process_tff_fourier(generator)
 
-    def _load_dff_dat(self):
-        with open(self._dff_dat_path) as fp:
+    def load_dff_dat(self, path):
+        with open(path) as fp:
             generator = self._read_fourier_dat(fp)
             return self.process_dff_fourier(generator)
 
-    def _load_match_dat(self, nmatch):
+    def load_match_dat(self, path, nmatch):
 
         def proc_buff(buff):
             src_idx, period, sigma, order, snr = (
@@ -252,7 +252,7 @@ class TFFCommand(object):
 
         def gen():
             buff, lineno = [], 0
-            with open(self._match_dat_path) as fp:
+            with open(path) as fp:
                 for line in fp:
                     if line.strip():
                         buff.extend(line.strip().rsplit(None, 4))
@@ -407,9 +407,9 @@ class TFFCommand(object):
             proc = self._cmd()
             proc.wait()
 
-        tff_data = self._load_tff_dat()
-        dff_data = self._load_dff_dat()
-        match_data = self._load_match_dat(nmatch)
+        tff_data = self.load_tff_dat(self._tff_dat_path)
+        dff_data = self.load_dff_dat(self._dff_dat_path)
+        match_data = self.load_match_dat(self._match_dat_path, nmatch)
 
         return tff_data, dff_data, match_data
 
