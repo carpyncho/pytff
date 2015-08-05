@@ -132,13 +132,7 @@ class TFFCommand(object):
             arr = np.asarray(data)
             if arr.dtype != np.object_:
                 return arr
-            maxdim = max(map(len, data))
-            arr = np.empty((arr.shape[0], maxdim))
-            arr.fill(np.nan)
-            for ridx, row in enumerate(data):
-                cols = np.arange(len(row))
-                arr[ridx, cols] = row
-            return arr
+            return stack_targets(data, None)[0]
 
         periods = asarray(periods)
         times = asarray(times)
@@ -507,4 +501,6 @@ def stack_targets(times, values):
 
         return np.vstack(adjusted)
 
-    return stack(times), stack(values)
+    return (
+        stack(times) if times is not None else None,
+        stack(values) if values is not None else None)
