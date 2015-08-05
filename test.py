@@ -66,11 +66,9 @@ class PyTFFCommandTest(unittest.TestCase):
         ogle_dff_path = os.path.join(data_path, "dff.dat")
         ogle_mch_path = os.path.join(data_path, "match.dat")
 
-        ogle_tff = pytff.load_tff_dat(
-            ogle_tff_path, self.tff.process_tff_fourier)
-        ogle_dff = pytff.load_tff_dat(ogle_dff_path,
-            self.tff.process_tff_fourier)
-        ogle_mch = self.tff.load_match_dat(ogle_mch_path)
+        ogle_tff = pytff.load_tff_dat(ogle_tff_path, self.tff.process_tff)
+        ogle_dff = pytff.load_tff_dat(ogle_dff_path, self.tff.process_dff)
+        ogle_mch = pytff.load_match_dat(ogle_mch_path, self.tff.process_matchs)
 
         times, values = pytff.loadtarget(ogle_path)
         periods = np.array([0.6347522])
@@ -89,11 +87,9 @@ class PyTFFCommandTest(unittest.TestCase):
         ogle_dff_path = os.path.join(data_path, "dff.dat")
         ogle_mch_path = os.path.join(data_path, "match.dat")
 
-        ogle_tff = pytff.load_tff_dat(
-            ogle_tff_path, self.tff.process_tff_fourier)
-        ogle_dff = pytff.load_tff_dat(ogle_dff_path,
-            self.tff.process_tff_fourier)
-        ogle_mch = self.tff.load_match_dat(ogle_mch_path)
+        ogle_tff = pytff.load_tff_dat(ogle_tff_path, self.tff.process_tff)
+        ogle_dff = pytff.load_tff_dat(ogle_dff_path, self.tff.process_dff)
+        ogle_mch = pytff.load_match_dat(ogle_mch_path, self.tff.process_matchs)
 
         times_0, values_0 = pytff.loadtarget(ogle_0_path)
         times_1, values_1 = pytff.loadtarget(ogle_1_path)

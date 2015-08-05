@@ -19,4 +19,6 @@ For more info please check: http://www.konkoly.hu/staff/kovacs/tff.html
 # IMPORTS
 # =============================================================================
 
-from .core import TFFCommand, loadtarget, stack_targets, load_tff_dat  # noqa
+from .core import (  # noqa
+    TFFCommand, loadtarget, stack_targets,
+    load_tff_dat, load_match_dat)

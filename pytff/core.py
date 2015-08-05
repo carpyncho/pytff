@@ -204,47 +204,25 @@ class TFFCommand(object):
                 fp.write("\n")
 
     # =========================================================================
-    # OUT PARSERS
-    # =========================================================================
-
-    def load_match_dat(self, path):
-        with open(path) as fp:
-            nmatch = len([None for line in fp if line.strip()]) - 1
-
-        def proc_buff(buff):
-            src_idx, period, sigma, order, snr = (
-                [(e,) * nmatch] for e in buff[:5])
-            match_rank = [tuple(range(1, nmatch+1))]
-            array = np.array(buff[5:])
-            array.shape = (nmatch or 1, 5)
-            matchs = np.concatenate(
-                (src_idx, match_rank, period, sigma, order, snr, array.T))
-            return matchs.T
-
-        def gen():
-            buff, lineno = [], 0
-            with open(path) as fp:
-                for line in fp:
-                    if line.strip():
-                        buff.extend(line.strip().rsplit(None, 4))
-                        lineno += 1
-                        if lineno >= nmatch + 1:
-                            for row in proc_buff(buff):
-                                yield tuple(row)
-                            buff = []
-                            lineno = 0
-            if buff:
-                for row in proc_buff(buff):
-                    yield tuple(row)
-
-        matchs = self.process_matchs(gen())
-        return matchs
-
-    # =========================================================================
     # CALL
     # =========================================================================
 
-    def process_tff_fourier(self, generator):
+    def fourier_proc_default(self, generator):
+        """Default processor of tff and dff
+
+        Parameters
+        ----------
+        generator: generator
+            A generator of tuples of every data about a target in a line
+
+        Returns
+        -------
+            A numpy array with names fields sugested by Kovacs and Kupi
+
+        For more info please see:
+        http://www.konkoly.hu/staff/kovacs/tff_in_out.inf
+
+        """
         fourier_dtypes = [
             ("src_idx", np.intp), ("period", np.float_),
             ("epoch", np.float_), ("average_magnitude", np.float_),
@@ -254,10 +232,68 @@ class TFFCommand(object):
             fourier_dtypes.append(("phi_{}".format(idx), np.float_))
         return np.fromiter(generator, dtype=fourier_dtypes)
 
-    def process_dff_fourier(self, generator):
-        return self.process_tff_fourier(generator)
+    def process_tff(self, generator):
+        """Procesors of tff.dat files.
+
+        You can override this method if you want to create another structure
+        of the ttf analysis. By default this method is a simple wrapper
+        around ``fourier_proc_default``.
+
+        Parameters
+        ----------
+        generator: generator
+            A generator of tuples of every data about a target in a line
+
+        Returns
+        -------
+            See ``fourier_proc_default``.
+
+        """
+        return self.fourier_proc_default(generator)
+
+    def process_dff(self, generator):
+        """Procesors of dff.dat files.
+
+        You can override this method if you want to create another structure
+        of the dtf analysis. By default this method is a simple wrapper
+        around ``fourier_proc_default``.
+
+        Parameters
+        ----------
+        generator: generator
+            A generator of tuples of every data about a target in a line
+
+        Returns
+        -------
+            See ``fourier_proc_default``.
+
+        """
+        return self.fourier_proc_default(generator)
 
     def process_matchs(self, generator):
+        """Procesors of match.dat files.
+
+        You can override this method if you want to create another structure
+        of the match analysis.
+
+        Parameters
+        ----------
+        generator: generator
+            A generator of tuples of every data about a matched target in a
+            line. The common fields are placed  as first 0, 2, 3 and 4 the
+            column 1 contains the match_rank.
+            match_rank is a value in between 1 and nmatch that represent
+            the importance of this match with the source (lower is better)
+
+        Returns
+        -------
+        List of target/template matches. You gona have ``nmatch`` rows for
+        every source.
+
+        For more info please see:
+        http://www.konkoly.hu/staff/kovacs/tff_in_out.inf
+
+        """
         match_dtypes = [
             ("src_idx", np.intp), ("match_rank", np.intp),
             ("src_period", np.float_), ("src_sigma_obs_fit", np.float_),
@@ -307,6 +343,9 @@ class TFFCommand(object):
 
         Return
         ------
+
+        You can change the return values redefining the methods:
+        ``process_tff``, ``process_dff`` and ``process_matchs``
 
         tff_data: ndarray
             Fourier decompositions, resulting from the TFF analysis.
@@ -379,12 +418,12 @@ class TFFCommand(object):
             proc.wait()
 
         with open(self._tff_dat_path) as fp:
-            tff_data = load_tff_dat(fp, self.process_tff_fourier)
+            tff_data = load_tff_dat(fp, self.process_tff)
 
         with open(self._dff_dat_path) as fp:
-            dff_data = load_tff_dat(fp, self.process_dff_fourier)
-
-        match_data = self.load_match_dat(self._match_dat_path)
+            dff_data = load_tff_dat(fp, self.process_dff)
+        with open(self._match_dat_path) as fp:
+            match_data = load_match_dat(fp, self.process_matchs)
 
         return tff_data, dff_data, match_data
 
@@ -417,9 +456,7 @@ def loadtarget(fname, **kwargs):
     Parameters
     ----------
     fname : file or str
-        File, filename, or generator to read.  If the filename extension is
-        ``.gz`` or ``.bz2``, the file is first decompressed. Note that
-        generators should return byte strings for Python 3k.
+        File or filename
     dtype : data-type, optional
         Data-type of the resulting array; default: float.  If this is a
         record data-type, the resulting array will be 1-dimensional, and
@@ -495,7 +532,7 @@ def load_tff_dat(fname, processor=None):
     Parameters
     ----------
     fname : file or str
-        File, filename, or generator to read.
+        File, or filename
     processor: callable or None
         A final output processor, by default a tuple of tuples is returned
 
@@ -504,7 +541,7 @@ def load_tff_dat(fname, processor=None):
     Whathever the processor return or a tuple of tuples
 
     """
-    processor = processor or (lambda x: x)
+    processor = processor or tuple
 
     def gen(fp):
         buff = []
@@ -521,8 +558,63 @@ def load_tff_dat(fname, processor=None):
         with open(fname) as fp:
             generator = gen(fp)
             return processor(generator)
-
     generator = gen(fname)
     return processor(generator)
 
 
+def load_match_dat(fname, processor=None):
+    """Read a match.dat files generated by tff command
+
+    Parameters
+    ----------
+    fname : file or str
+        File or filename
+    processor: callable or None
+        A final output processor, by default a tuple of tuples is returned
+
+    Returns
+    -------
+    Whathever the processor return or a tuple of tuples
+
+    """
+    processor = processor or tuple
+
+    if isinstance(fname, six.string_types):
+        with open(fname) as fp:
+            nmatch = len([None for line in fp if line.strip()]) - 1
+    else:
+        pos = fname.tell()
+        nmatch = len([None for line in fname if line.strip()]) - 1
+        fname.seek(pos)
+
+    def proc_buff(buff):
+        src_idx, period, sigma, order, snr = (
+            [(e,) * nmatch] for e in buff[:5])
+        match_rank = [tuple(range(1, nmatch+1))]
+        array = np.array(buff[5:])
+        array.shape = (nmatch or 1, 5)
+        matchs = np.concatenate(
+            (src_idx, match_rank, period, sigma, order, snr, array.T))
+        return matchs.T
+
+    def gen(fp):
+        buff, lineno = [], 0
+        for line in fp:
+            if line.strip():
+                buff.extend(line.strip().rsplit(None, 4))
+                lineno += 1
+                if lineno >= nmatch + 1:
+                    for row in proc_buff(buff):
+                        yield tuple(row)
+                    buff = []
+                    lineno = 0
+        if buff:
+            for row in proc_buff(buff):
+                yield tuple(row)
+
+    if isinstance(fname, six.string_types):
+        with open(fname) as fp:
+            generator = gen(fp)
+            return processor(generator)
+    generator = gen(fname)
+    return processor(generator)
