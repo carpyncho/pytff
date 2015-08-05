@@ -238,14 +238,16 @@ class TFFCommand(object):
             generator = self._read_fourier_dat(fp)
             return self.process_dff_fourier(generator)
 
-    def load_match_dat(self, path, nmatch):
+    def load_match_dat(self, path):
+        with open(path) as fp:
+            nmatch = len([None for line in fp if line.strip()]) - 1
 
         def proc_buff(buff):
             src_idx, period, sigma, order, snr = (
                 [(e,) * nmatch] for e in buff[:5])
             match_rank = [tuple(range(1, nmatch+1))]
             array = np.array(buff[5:])
-            array.shape = (nmatch, 5)
+            array.shape = (nmatch or 1, 5)
             matchs = np.concatenate(
                 (src_idx, match_rank, period, sigma, order, snr, array.T))
             return matchs.T
@@ -409,7 +411,7 @@ class TFFCommand(object):
 
         tff_data = self.load_tff_dat(self._tff_dat_path)
         dff_data = self.load_dff_dat(self._dff_dat_path)
-        match_data = self.load_match_dat(self._match_dat_path, nmatch)
+        match_data = self.load_match_dat(self._match_dat_path)
 
         return tff_data, dff_data, match_data
 

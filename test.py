@@ -20,7 +20,6 @@
 
 import os
 import unittest
-import csv
 import tempfile
 import shutil
 
@@ -60,67 +59,37 @@ class PyTFFCommandTest(unittest.TestCase):
     def setUp(self):
         self.tff = pytff.TFFCommand()
 
-    def assertFourierEquals(self, pytff_data, fpath, original, **kwargs):
-        original = [six.text_type(original)]
-        with open(fpath) as fp:
-            reader = csv.reader(fp, delimiter=" ")
-            for lidx, line in enumerate(reader):
-                if lidx == 0:
-                    continue
-                original += [e for e in line if e.strip()]
-        for pytff_value, orig_value in six.moves.zip(pytff_data[0], original):
-            orig_value = pytff_value.dtype.type(orig_value)
-            np.testing.assert_allclose(orig_value, pytff_value, **kwargs)
-
-    def assertMatchEquals(self, match_data, fpath, original, **kwargs):
-        org_first = original
-        original = []
-        with open(fpath) as fp:
-            reader = csv.reader(fp, delimiter=" ")
-            header = None
-            for lidx, line in enumerate(reader):
-                line = " ".join(line).strip().rsplit(None, 4)
-                if lidx == 0:
-                    header = line[1:]
-                else:
-                    original.append([org_first, lidx] + header + line)
-
-        for mline, oline in six.moves.zip(match_data, original):
-            for mvalue, ovalue in six.moves.zip(mline, oline):
-                dtype = mvalue.dtype.type
-                ovalue = dtype(ovalue)
-                if dtype == np.string_:
-                    self.assertEqual(
-                        mvalue, ovalue, msg=kwargs.get("err_msg"))
-                else:
-                    np.testing.assert_allclose(ovalue, mvalue, **kwargs)
-
     def test_single_data(self):
         data_path = os.path.join(PATH, "data", "single_dat")
         ogle_path = os.path.join(data_path, "ogle.dat")
         ogle_tff_path = os.path.join(data_path, "tff.dat")
         ogle_dff_path = os.path.join(data_path, "dff.dat")
-        ogle_match_path = os.path.join(data_path, "match.dat")
+        ogle_mch_path = os.path.join(data_path, "match.dat")
+
+        ogle_tff = self.tff.load_tff_dat(ogle_tff_path)
+        ogle_dff = self.tff.load_dff_dat(ogle_dff_path)
+        ogle_mch = self.tff.load_match_dat(ogle_mch_path)
 
         times, values = pytff.loadtarget(ogle_path)
         periods = np.array([0.6347522])
 
-        tff_data, dff_data, match_data = self.tff.analyze(
-            periods, times, values)
-        self.assertFourierEquals(
-            tff_data, ogle_tff_path, 0, err_msg="tff is diferent")
-        self.assertFourierEquals(
-            dff_data, ogle_dff_path, 0, err_msg="dff is diferent")
-        self.assertMatchEquals(
-            match_data, ogle_match_path, 0, err_msg="match is diferent")
+        tff_data, dff_data, mch_data = self.tff.analyze(periods, times, values)
 
-    def _test_split_data(self):
+        np.testing.assert_array_equal(tff_data, ogle_tff)
+        np.testing.assert_array_equal(dff_data, ogle_dff)
+        np.testing.assert_array_equal(mch_data, ogle_mch)
+
+    def test_split_data(self):
         data_path = os.path.join(PATH, "data", "split_dat")
         ogle_0_path = os.path.join(data_path, "ogle_0.dat")
         ogle_1_path = os.path.join(data_path, "ogle_1.dat")
         ogle_tff_path = os.path.join(data_path, "tff.dat")
         ogle_dff_path = os.path.join(data_path, "dff.dat")
-        ogle_match_path = os.path.join(data_path, "match.dat")
+        ogle_mch_path = os.path.join(data_path, "match.dat")
+
+        ogle_tff = self.tff.load_tff_dat(ogle_tff_path)
+        ogle_dff = self.tff.load_dff_dat(ogle_dff_path)
+        ogle_mch = self.tff.load_match_dat(ogle_mch_path)
 
         times_0, values_0 = pytff.loadtarget(ogle_0_path)
         times_1, values_1 = pytff.loadtarget(ogle_1_path)
@@ -129,11 +98,11 @@ class PyTFFCommandTest(unittest.TestCase):
             (times_0, times_1), (values_0[0], values_1))
         periods = np.array([0.6347522] * 2)
 
-        tff_data, dff_data, match_data = self.tff.analyze(
-            periods, times, values)
+        tff_data, dff_data, mch_data = self.tff.analyze(periods, times, values)
 
-        import ipdb; ipdb.set_trace()
-
+        np.testing.assert_array_equal(tff_data, ogle_tff)
+        np.testing.assert_array_equal(dff_data, ogle_dff)
+        np.testing.assert_array_equal(mch_data, ogle_mch)
 
     def test_diferent_shape_data(self):
         # this test only verify nothing blows up
