@@ -22,6 +22,7 @@ import os
 import unittest
 import tempfile
 import shutil
+import random
 
 import six
 
@@ -107,6 +108,48 @@ class PyTFFFunctionTest(unittest.TestCase):
         stk_times, stk_values = pytff.stack_targets(times, values)
         np.testing.assert_array_equal(stk_times, expected_times)
         np.testing.assert_array_equal(stk_values, expected_values)
+
+    def test_load_tff_dat(self):
+        data_path = os.path.join(PATH, "data", "single_dat")
+        ogle_tff_path = os.path.join(data_path, "tff.dat")
+
+        asstring = pytff.load_tff_dat(ogle_tff_path)
+        with open(ogle_tff_path) as fp:
+            asfp = pytff.load_tff_dat(fp)
+        self.assertEquals(asstring, asfp)
+        self.assertIsInstance(asstring, tuple)
+        self.assertIsInstance(asfp, tuple)
+        self.assertTrue(all(map(lambda e: isinstance(e, tuple), asstring)))
+        self.assertTrue(all(map(lambda e: isinstance(e, tuple), asfp)))
+
+        rnd = random.random()
+        asstring = pytff.load_tff_dat(ogle_tff_path, lambda gen: rnd)
+        with open(ogle_tff_path) as fp:
+            asfp = pytff.load_tff_dat(fp, lambda gen: rnd)
+        self.assertEquals(asstring, asfp)
+        self.assertEquals(asfp, rnd)
+        self.assertEquals(asstring, rnd)
+
+    def test_load_match_dat(self):
+        data_path = os.path.join(PATH, "data", "single_dat")
+        ogle_mch_path = os.path.join(data_path, "match.dat")
+
+        asstring = pytff.load_match_dat(ogle_mch_path)
+        with open(ogle_mch_path) as fp:
+            asfp = pytff.load_match_dat(fp)
+        self.assertEquals(asstring, asfp)
+        self.assertIsInstance(asstring, tuple)
+        self.assertIsInstance(asfp, tuple)
+        self.assertTrue(all(map(lambda e: isinstance(e, tuple), asstring)))
+        self.assertTrue(all(map(lambda e: isinstance(e, tuple), asfp)))
+
+        rnd = random.random()
+        asstring = pytff.load_match_dat(ogle_mch_path, lambda gen: rnd)
+        with open(ogle_mch_path) as fp:
+            asfp = pytff.load_match_dat(fp, lambda gen: rnd)
+        self.assertEquals(asstring, asfp)
+        self.assertEquals(asfp, rnd)
+        self.assertEquals(asstring, rnd)
 
 
 class PyTFFCommandTest(unittest.TestCase):
