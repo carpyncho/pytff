@@ -114,12 +114,81 @@ class PyTFFCommandTest(unittest.TestCase):
         self.assertMatchEquals(
             match_data, ogle_match_path, err_msg="match is diferent")
 
+    def _test_split_data(self):
+        data_path = os.path.join(PATH, "data", "split_dat")
+        ogle_0_path = os.path.join(data_path, "ogle_0.dat")
+        ogle_1_path = os.path.join(data_path, "ogle_1.dat")
+        ogle_tff_path = os.path.join(data_path, "tff.dat")
+        ogle_dff_path = os.path.join(data_path, "dff.dat")
+        ogle_match_path = os.path.join(data_path, "match.dat")
+
+        times_0, values_0 = pytff.loadtarget(ogle_1_path)
+        times_1, values_1 = pytff.loadtarget(ogle_0_path)
+
+        times = [times_0[0], times_1[0]], [values_0[0], values_1[0]]
+        periods = np.array([0.6347522] * 2)
+
     def test_diferent_shape_data(self):
         # this test only verify nothing blows up
         periods = [1, 2]
         times = [[0, 1, 2], [3, 4, 5, 6]]
         values = [[0, 1, 2], [3, 4, 5, 7]]
         self.tff.analyze(periods, times, values)
+
+    def test_stack_targets_diferent_sizes(self):
+        # Diferent sizes
+        times = [[0, 1, 2], [3, 4, 5, 6]]
+        expected_times = np.array([[0., 1., 2., np.nan],
+                                   [3., 4., 5., 6.]])
+
+        values = [[0, 1, 2], [3, 4, 5, 7]]
+        expected_values = np.array([[0., 1., 2., np.nan],
+                                    [3., 4., 5., 7.]])
+
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
+        # diferent sizes array
+        times = [np.array([0, 1, 2]), np.array([3, 4, 5, 6])]
+        values = [np.array([0, 1, 2]), np.array([3, 4, 5, 7])]
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
+        # more dimensions
+        times = [np.array([[0, 1, 2]]), np.array([[3, 4, 5, 6]])]
+        values = [np.array([[0, 1, 2]]), np.array([[3, 4, 5, 7]])]
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
+    def test_stack_targets_same_sizes(self):
+        times = [[0, 1, 2], [3, 4, 5]]
+        expected_times = np.array([[0., 1., 2.],
+                                   [3., 4., 5.]])
+
+        values = [[0, 1, 2], [3, 4, 5]]
+        expected_values = np.array([[0., 1., 2.],
+                                    [3., 4., 5.]])
+
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
+        # same sizes array
+        times = [np.array([0, 1, 2]), np.array([3, 4, 5])]
+        values = [np.array([0, 1, 2]), np.array([3, 4, 5])]
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
+        # arrays more dimensions
+        times = [np.array([[0, 1, 2]]), np.array([[3, 4, 5]])]
+        values = [np.array([[0, 1, 2]]), np.array([[3, 4, 5]])]
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
 
     def test_wrkpath_is_removed_when_is_temp(self):
         # remove clasic temp
@@ -128,7 +197,7 @@ class PyTFFCommandTest(unittest.TestCase):
         del self.tff
         self.assertFalse(os.path.exists(path) and os.path.isdir(path))
 
-        # custom seted dir need to be preserved
+    def test_wrkpath_is_not_removed_when_is_not_temp(self):
         path = tempfile.mkdtemp(suffix="_tff_test")
 
         self.tff = pytff.TFFCommand(wrk_path=path)

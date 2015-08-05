@@ -477,3 +477,32 @@ def loadtarget(fname, **kwargs):
     times.shape = 1, times.shape[0]
     values.shape = 1, values.shape[0]
     return times, values
+
+
+def stack_targets(times, values):
+    """Stack all times with times and values with values into a 2d ndarray
+
+    """
+    def stack(arrays):
+        arrays = [np.asarray(a).ravel() for a in arrays]
+        shapes = [np.shape(a) for a in arrays]
+        same_shapes = all((s == shapes[0]) for s in shapes)
+        if same_shapes:
+            return np.vstack(arrays)
+
+        bigger = np.max([np.size(a) for a in arrays])
+        adjusted = []
+        for array in arrays:
+            if np.size(array) < bigger:
+                new_arr = np.empty(bigger)
+                new_arr.fill(np.nan)
+
+                idxs = np.arange(np.size(array))
+                new_arr[idxs] = array[:]
+            else:
+                new_arr = array
+            adjusted.append(new_arr)
+
+        return np.vstack(adjusted)
+
+    return stack(times), stack(values)
