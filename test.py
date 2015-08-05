@@ -53,6 +53,61 @@ class PyTFFFunctionTest(unittest.TestCase):
                 pytff_value = times_values[cidx][0][lidx]
                 np.testing.assert_allclose(fvalue, pytff_value)
 
+    def test_stack_targets_diferent_sizes(self):
+        # Diferent sizes
+        times = [[0, 1, 2], [3, 4, 5, 6]]
+        expected_times = np.array([[0., 1., 2., np.nan],
+                                   [3., 4., 5., 6.]])
+
+        values = [[0, 1, 2], [3, 4, 5, 7]]
+        expected_values = np.array([[0., 1., 2., np.nan],
+                                    [3., 4., 5., 7.]])
+
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
+        # diferent sizes array
+        times = [np.array([0, 1, 2]), np.array([3, 4, 5, 6])]
+        values = [np.array([0, 1, 2]), np.array([3, 4, 5, 7])]
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
+        # more dimensions
+        times = [np.array([[0, 1, 2]]), np.array([[3, 4, 5, 6]])]
+        values = [np.array([[0, 1, 2]]), np.array([[3, 4, 5, 7]])]
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
+    def test_stack_targets_same_sizes(self):
+        times = [[0, 1, 2], [3, 4, 5]]
+        expected_times = np.array([[0., 1., 2.],
+                                   [3., 4., 5.]])
+
+        values = [[0, 1, 2], [3, 4, 5]]
+        expected_values = np.array([[0., 1., 2.],
+                                    [3., 4., 5.]])
+
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
+        # same sizes array
+        times = [np.array([0, 1, 2]), np.array([3, 4, 5])]
+        values = [np.array([0, 1, 2]), np.array([3, 4, 5])]
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
+        # arrays more dimensions
+        times = [np.array([[0, 1, 2]]), np.array([[3, 4, 5]])]
+        values = [np.array([[0, 1, 2]]), np.array([[3, 4, 5]])]
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
 
 class PyTFFCommandTest(unittest.TestCase):
 
@@ -110,61 +165,6 @@ class PyTFFCommandTest(unittest.TestCase):
         times = [[0, 1, 2], [3, 4, 5, 6]]
         values = [[0, 1, 2], [3, 4, 5, 7]]
         self.tff.analyze(periods, times, values)
-
-    def test_stack_targets_diferent_sizes(self):
-        # Diferent sizes
-        times = [[0, 1, 2], [3, 4, 5, 6]]
-        expected_times = np.array([[0., 1., 2., np.nan],
-                                   [3., 4., 5., 6.]])
-
-        values = [[0, 1, 2], [3, 4, 5, 7]]
-        expected_values = np.array([[0., 1., 2., np.nan],
-                                    [3., 4., 5., 7.]])
-
-        stk_times, stk_values = pytff.stack_targets(times, values)
-        np.testing.assert_array_equal(stk_times, expected_times)
-        np.testing.assert_array_equal(stk_values, expected_values)
-
-        # diferent sizes array
-        times = [np.array([0, 1, 2]), np.array([3, 4, 5, 6])]
-        values = [np.array([0, 1, 2]), np.array([3, 4, 5, 7])]
-        stk_times, stk_values = pytff.stack_targets(times, values)
-        np.testing.assert_array_equal(stk_times, expected_times)
-        np.testing.assert_array_equal(stk_values, expected_values)
-
-        # more dimensions
-        times = [np.array([[0, 1, 2]]), np.array([[3, 4, 5, 6]])]
-        values = [np.array([[0, 1, 2]]), np.array([[3, 4, 5, 7]])]
-        stk_times, stk_values = pytff.stack_targets(times, values)
-        np.testing.assert_array_equal(stk_times, expected_times)
-        np.testing.assert_array_equal(stk_values, expected_values)
-
-    def test_stack_targets_same_sizes(self):
-        times = [[0, 1, 2], [3, 4, 5]]
-        expected_times = np.array([[0., 1., 2.],
-                                   [3., 4., 5.]])
-
-        values = [[0, 1, 2], [3, 4, 5]]
-        expected_values = np.array([[0., 1., 2.],
-                                    [3., 4., 5.]])
-
-        stk_times, stk_values = pytff.stack_targets(times, values)
-        np.testing.assert_array_equal(stk_times, expected_times)
-        np.testing.assert_array_equal(stk_values, expected_values)
-
-        # same sizes array
-        times = [np.array([0, 1, 2]), np.array([3, 4, 5])]
-        values = [np.array([0, 1, 2]), np.array([3, 4, 5])]
-        stk_times, stk_values = pytff.stack_targets(times, values)
-        np.testing.assert_array_equal(stk_times, expected_times)
-        np.testing.assert_array_equal(stk_values, expected_values)
-
-        # arrays more dimensions
-        times = [np.array([[0, 1, 2]]), np.array([[3, 4, 5]])]
-        values = [np.array([[0, 1, 2]]), np.array([[3, 4, 5]])]
-        stk_times, stk_values = pytff.stack_targets(times, values)
-        np.testing.assert_array_equal(stk_times, expected_times)
-        np.testing.assert_array_equal(stk_values, expected_values)
 
     def test_wrkpath_is_removed_when_is_temp(self):
         # remove clasic temp
