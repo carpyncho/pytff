@@ -72,7 +72,7 @@ def do_setup():
         license="3 Clause BSD",
         keywords="tff fourier template match",
         classifiers=(
-            "Development Status :: 3 - Alpha",
+            "Development Status :: 4 - Beta",
             "Intended Audience :: Education",
             "Intended Audience :: Science/Research",
             "License :: OSI Approved :: BSD License",
