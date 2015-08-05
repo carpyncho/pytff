@@ -95,7 +95,7 @@ class PyTFFCommandTest(unittest.TestCase):
                 else:
                     np.testing.assert_allclose(ovalue, mvalue, **kwargs)
 
-    def test_single_data(self):
+    def _test_single_data(self):
         data_path = os.path.join(PATH, "data", "single_dat")
         ogle_path = os.path.join(data_path, "ogle.dat")
         ogle_tff_path = os.path.join(data_path, "tff.dat")
@@ -115,7 +115,7 @@ class PyTFFCommandTest(unittest.TestCase):
         self.assertMatchEquals(
             match_data, ogle_match_path, 0, err_msg="match is diferent")
 
-    def _test_split_data(self):
+    def test_split_data(self):
         data_path = os.path.join(PATH, "data", "split_dat")
         ogle_0_path = os.path.join(data_path, "ogle_0.dat")
         ogle_1_path = os.path.join(data_path, "ogle_1.dat")
