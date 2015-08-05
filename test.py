@@ -60,8 +60,8 @@ class PyTFFCommandTest(unittest.TestCase):
     def setUp(self):
         self.tff = pytff.TFFCommand()
 
-    def assertFourierEquals(self, pytff_data, fpath, **kwargs):
-        original = ["0"]
+    def assertFourierEquals(self, pytff_data, fpath, original, **kwargs):
+        original = [six.text_type(original)]
         with open(fpath) as fp:
             reader = csv.reader(fp, delimiter=" ")
             for lidx, line in enumerate(reader):
@@ -72,7 +72,8 @@ class PyTFFCommandTest(unittest.TestCase):
             orig_value = pytff_value.dtype.type(orig_value)
             np.testing.assert_allclose(orig_value, pytff_value, **kwargs)
 
-    def assertMatchEquals(self, match_data, fpath, **kwargs):
+    def assertMatchEquals(self, match_data, fpath, original, **kwargs):
+        org_first = original
         original = []
         with open(fpath) as fp:
             reader = csv.reader(fp, delimiter=" ")
@@ -82,7 +83,7 @@ class PyTFFCommandTest(unittest.TestCase):
                 if lidx == 0:
                     header = line[1:]
                 else:
-                    original.append(["0", lidx] + header + line)
+                    original.append([org_first, lidx] + header + line)
 
         for mline, oline in six.moves.zip(match_data, original):
             for mvalue, ovalue in six.moves.zip(mline, oline):
@@ -108,11 +109,11 @@ class PyTFFCommandTest(unittest.TestCase):
             periods, times, values)
 
         self.assertFourierEquals(
-            tff_data, ogle_tff_path, err_msg="tff is diferent")
+            tff_data, ogle_tff_path, 0, err_msg="tff is diferent")
         self.assertFourierEquals(
-            dff_data, ogle_dff_path, err_msg="dff is diferent")
+            dff_data, ogle_dff_path, 0, err_msg="dff is diferent")
         self.assertMatchEquals(
-            match_data, ogle_match_path, err_msg="match is diferent")
+            match_data, ogle_match_path, 0, err_msg="match is diferent")
 
     def _test_split_data(self):
         data_path = os.path.join(PATH, "data", "split_dat")
@@ -122,11 +123,18 @@ class PyTFFCommandTest(unittest.TestCase):
         ogle_dff_path = os.path.join(data_path, "dff.dat")
         ogle_match_path = os.path.join(data_path, "match.dat")
 
-        times_0, values_0 = pytff.loadtarget(ogle_1_path)
-        times_1, values_1 = pytff.loadtarget(ogle_0_path)
+        times_0, values_0 = pytff.loadtarget(ogle_0_path)
+        times_1, values_1 = pytff.loadtarget(ogle_1_path)
 
-        times = [times_0[0], times_1[0]], [values_0[0], values_1[0]]
+        times, values = pytff.stack_targets(
+            (times_0, times_1), (values_0[0], values_1))
         periods = np.array([0.6347522] * 2)
+
+        tff_data, dff_data, match_data = self.tff.analyze(
+            periods, times, values)
+
+        import ipdb; ipdb.set_trace()
+
 
     def test_diferent_shape_data(self):
         # this test only verify nothing blows up
