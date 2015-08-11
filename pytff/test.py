@@ -37,6 +37,8 @@ import pytff
 
 PATH = os.path.abspath(os.path.dirname(__file__))
 
+DATA_PATH = os.path.join(PATH, "test_data")
+
 
 # =============================================================================
 # TEST CASES
@@ -110,7 +112,7 @@ class PyTFFFunctionTest(unittest.TestCase):
         np.testing.assert_array_equal(stk_values, expected_values)
 
     def test_load_tff_dat(self):
-        data_path = os.path.join(PATH, "data", "single_dat")
+        data_path = os.path.join(DATA_PATH, "single_dat")
         ogle_tff_path = os.path.join(data_path, "tff.dat")
 
         asstring = pytff.load_tff_dat(ogle_tff_path)
@@ -131,7 +133,7 @@ class PyTFFFunctionTest(unittest.TestCase):
         self.assertEquals(asstring, rnd)
 
     def test_load_match_dat(self):
-        data_path = os.path.join(PATH, "data", "single_dat")
+        data_path = os.path.join(DATA_PATH, "single_dat")
         ogle_mch_path = os.path.join(data_path, "match.dat")
 
         asstring = pytff.load_match_dat(ogle_mch_path)
@@ -158,7 +160,7 @@ class PyTFFCommandTest(unittest.TestCase):
         self.tff = pytff.TFFCommand()
 
     def test_single_data(self):
-        data_path = os.path.join(PATH, "data", "single_dat")
+        data_path = os.path.join(DATA_PATH, "single_dat")
         ogle_path = os.path.join(data_path, "ogle.dat")
         ogle_tff_path = os.path.join(data_path, "tff.dat")
         ogle_dff_path = os.path.join(data_path, "dff.dat")
@@ -178,7 +180,7 @@ class PyTFFCommandTest(unittest.TestCase):
         np.testing.assert_array_equal(mch_data, ogle_mch)
 
     def test_split_data(self):
-        data_path = os.path.join(PATH, "data", "split_dat")
+        data_path = os.path.join(DATA_PATH, "split_dat")
         ogle_0_path = os.path.join(data_path, "ogle_0.dat")
         ogle_1_path = os.path.join(data_path, "ogle_1.dat")
         ogle_tff_path = os.path.join(data_path, "tff.dat")
