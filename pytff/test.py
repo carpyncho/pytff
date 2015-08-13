@@ -193,9 +193,8 @@ class PyTFFCommandTest(unittest.TestCase):
 
         times_0, values_0 = pytff.loadtarget(ogle_0_path)
         times_1, values_1 = pytff.loadtarget(ogle_1_path)
-
         times, values = pytff.stack_targets(
-            (times_0, times_1), (values_0[0], values_1))
+            (times_0, times_1), (values_0, values_1))
         periods = np.array([0.6347522] * 2)
 
         tff_data, dff_data, mch_data = self.tff.analyze(periods, times, values)
@@ -227,6 +226,17 @@ class PyTFFCommandTest(unittest.TestCase):
         self.assertTrue(os.path.exists(path) and os.path.isdir(path))
 
         shutil.rmtree(path, True)
+
+    def _test_write_stk_targets(self):
+        periods = [1, 2]
+        times = [[0, 1, 2], [3, 4, 5, 6]]
+        values = [[0, 1, 2], [3, 4, 5, 7]]
+        self.tff.debug = True
+        self.tff.analyze(periods, times, values)
+
+        targets = np.dstack(pytff.stack_targets(times, values))
+
+        import ipdb; ipdb.set_trace()
 
 # =============================================================================
 # MAIN

@@ -121,11 +121,6 @@ class TFFCommand(object):
     # HELPERS
     # =========================================================================
 
-    def _hash(self, data):
-        if isinstance(data, six.text_type):
-            data = data.encode("utf8")
-        return hashlib.sha1(data).hexdigest()
-
     def _clean(self, periods, times, values):
 
         def asarray(data):
@@ -165,7 +160,7 @@ class TFFCommand(object):
         params = {k: (self._fmt % v) for k, v in six.iteritems(kwargs)}
         src = constants.TFF_PAR_TEMPLATE.format(**params).strip()
 
-        src_hash = self._hash(src)
+        src_hash = cache_hash(src)
         if self._par_hash is None or self._par_hash != src_hash:
             with open(self._par_path, "w") as fp:
                 fp.write(src)
@@ -173,14 +168,14 @@ class TFFCommand(object):
 
     def _render_template_file(self):
         src = constants.TEMPLATE_DAT_SRC
-        src_hash = self._hash(src)
+        src_hash = cache_hash(src)
         if self._template_hash is None or self._template_hash != src_hash:
             with open(self._template_path, "w") as fp:
                 fp.write(src)
             self._template_hash = src_hash
 
     def _render_target_file(self, target):
-        target_hash = self._hash(target)
+        target_hash = cache_hash(target)
         if target_hash not in self._targets_cache:
             uid = six.text_type(uuid.uuid1())
             fname = "{}.dat".format(uid)
@@ -618,3 +613,12 @@ def load_match_dat(fname, processor=None):
             return processor(generator)
     generator = gen(fname)
     return processor(generator)
+
+
+def cache_hash(data):
+    """Hash algorithm for use in internal cache of pytff
+
+    """
+    if isinstance(data, six.text_type):
+        data = data.encode("utf8")
+    return hashlib.sha1(data).hexdigest()
