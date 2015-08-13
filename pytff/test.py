@@ -46,6 +46,14 @@ DATA_PATH = os.path.join(PATH, "test_data")
 
 class PyTFFFunctionTest(unittest.TestCase):
 
+    def test_cache_hash(self):
+        data = [
+            six.text_type(random.random()),
+            np.random.randn(10), six.b("hhh"), "hhh"
+        ]
+        for elem in data:
+            pytff.cache_hash(elem)
+
     def test_loadtarget(self):
         data = "1 2\n3 4\n5 6"
         fp = six.StringIO(data)
@@ -227,7 +235,7 @@ class PyTFFCommandTest(unittest.TestCase):
 
         shutil.rmtree(path, True)
 
-    def _test_write_stk_targets(self):
+    def test_write_stk_targets(self):
         periods = [1, 2]
         times = [[0, 1, 2], [3, 4, 5, 6]]
         values = [[0, 1, 2], [3, 4, 5, 7]]
@@ -235,8 +243,12 @@ class PyTFFCommandTest(unittest.TestCase):
         self.tff.analyze(periods, times, values)
 
         targets = np.dstack(pytff.stack_targets(times, values))
-
-        import ipdb; ipdb.set_trace()
+        for idx, t in enumerate(targets):
+            ch = pytff.cache_hash(t)
+            self.assertIn(ch, self.tff.targets_cache)
+            with open(self.tff.targets_cache[ch]) as fp:
+                linenos = len(fp.readlines())
+            self.assertTrue(len(times[idx]) == len(values[idx]) == linenos)
 
 # =============================================================================
 # MAIN
