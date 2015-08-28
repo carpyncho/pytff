@@ -30,7 +30,7 @@ from setuptools import setup, find_packages
 # CONSTANTS
 #==============================================================================
 
-VERSION = ('0', '6', '6')
+VERSION = ('0', '7')
 
 STR_VERSION = ".".join(VERSION)
 
@@ -71,6 +71,11 @@ def do_setup():
         url="https://github.com/carpyncho/pytff",
         license="3 Clause BSD",
         keywords="tff fourier template match",
+        package_data={
+            "pytff.datasets": ['data/{}'.format(blob)
+                               for blob in ("*.dat", "*.lis", "*.par")],
+        },
+        include_package_data=True,
         classifiers=(
             "Development Status :: 4 - Beta",
             "Intended Audience :: Education",
