@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# License: 3 Clause BSD
+# Part of Carpyncho - http://carpyncho.jbcabral.org
+
+
 # =============================================================================
-# FUTURES
+# IMPORTS
 # =============================================================================
 
 from __future__ import unicode_literals
