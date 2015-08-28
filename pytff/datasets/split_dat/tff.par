@@ -1,0 +1,17 @@
+*
+***************************************************************
+*  This is the input parameter file for code  'tff'           *
+*  Please check the source for the meaning of the parameters. *
+*  For changing parameters please use space only between      *
+*  columns 11-20. No exponential format please. Do not delete *
+*  or add any lines. Comments can be added from column 22-80. *
+***************************************************************
+*                   |
+ntbin    = 300      |number of bins of the templates
+nmin     = 10       |minimum number of the template data points
+mindp    = 10       |minimum number of the target data points
+snr1min  = 10.0     |minimum SNR1 of the template time series
+nmatch   = 10       |number of the top best matching templates to be printed
+dph      = 0.00001  |templates are fitted with dph accuracy in phase
+asig     = 555.0    |sigma clipping parameter for template and Fourier fits
+jfit     = -1       |template polynomial degree (if jfit < 0, then optimized)

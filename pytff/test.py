@@ -43,13 +43,41 @@ PATH = os.path.abspath(os.path.dirname(__file__))
 # TEST CASES
 # =============================================================================
 
+class DatasetTest(unittest.TestCase):
+
+    def setUp(self):
+        self.datasets_path = os.path.join(PATH, "datasets")
+        self.files = {}
+        for dirpath, dirnames, filenames in os.walk(self.datasets_path):
+            if (dirpath != self.datasets_path and not
+               os.path.basename(dirpath).startswith("_")):
+                    container = self.files.setdefault(dirpath, [])
+                    container.extend(filenames)
+
+    def test_ls(self):
+        self.assertEqual(self.files, datasets.ls())
+
+    def test_get(self):
+        for dirpath, filenames in self.files.items():
+            for fname in filenames:
+                datasets.get(dirpath, fname)
+        dirpath = random.choice(list(self.files.keys()))
+        fname = random.choice(self.files[dirpath])
+        datasets.get(dirpath, fname)
+        with self.assertRaises(IOError):
+            datasets.get(dirpath, fname + "_")
+        with self.assertRaises(IOError):
+            datasets.get(dirpath + "_", fname)
+        with self.assertRaises(IOError):
+            datasets.get(dirpath + "_", fname + "_")
+
+
 class PyTFFFunctionTest(unittest.TestCase):
 
     def test_cache_hash(self):
         data = [
             six.text_type(random.random()),
-            np.random.randn(10), six.b("hhh"), "hhh"
-        ]
+            np.random.randn(10), six.b("hhh"), "hhh"]
         for elem in data:
             pytff.cache_hash(elem)
 
