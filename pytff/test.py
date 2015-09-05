@@ -49,10 +49,11 @@ class DatasetTest(unittest.TestCase):
         self.datasets_path = os.path.join(PATH, "datasets")
         self.files = {}
         for dirpath, dirnames, filenames in os.walk(self.datasets_path):
-            if (dirpath != self.datasets_path and not
-               os.path.basename(dirpath).startswith("_")):
-                    container = self.files.setdefault(dirpath, [])
-                    container.extend(filenames)
+            basename = os.path.basename(dirpath)
+            if dirpath != self.datasets_path and not basename.startswith("_"):
+                    container = self.files.setdefault(basename, [])
+                    container.extend(
+                        fn for fn in filenames if not fn.startswith("_"))
 
     def test_ls(self):
         self.assertEqual(self.files, datasets.ls())

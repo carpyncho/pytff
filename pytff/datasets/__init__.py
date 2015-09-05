@@ -24,6 +24,9 @@ __doc__ = """PyTFF datasets"""
 # =============================================================================
 
 import os
+import codecs
+
+import six
 
 
 # =============================================================================
@@ -38,11 +41,30 @@ PATH = os.path.abspath(os.path.dirname(__file__))
 # =============================================================================
 
 def get(datasetname, filename):
-    """Retrieve a full path to datasetfile or raises an IOError"""
+    """Retrieve a full path to datasetfile or raises an IOError
+
+    """
     path = os.path.join(PATH, datasetname, filename)
-    if os.path.exists(path):
-        return path
-    raise IOError("Resource '{}' not exists".format(path))
+    if (datasetname and filename and not
+       datasetname.startswith("_") and not filename.startswith("_") and
+       os.path.isfile(path)):
+            return path
+    raise IOError("Dataset file '{}' not exists".format(path))
+
+
+def info(datasetname):
+    """Return information about a given dataset as plain text
+
+    """
+    dspath = os.path.join(PATH, datasetname)
+    path = os.path.join(dspath, "_info.txt")
+    if os.path.isdir(dspath) and os.path.isfile(path):
+        with codecs.open(path, encoding="utf8") as fp:
+            infotext = fp.read()
+        return infotext
+    elif os.path.isdir(dspath):
+        return six.u("")
+    raise IOError("Dataset do not exists")
 
 
 def ls():
@@ -52,9 +74,11 @@ def ls():
     """
     files = {}
     for dirpath, dirnames, filenames in os.walk(PATH):
-        if dirpath != PATH and not os.path.basename(dirpath).startswith("_"):
-            container = files.setdefault(dirpath, [])
-            container.extend(filenames)
+        basename = os.path.basename(dirpath)
+        if dirpath != PATH and not basename.startswith("_"):
+            container = files.setdefault(basename, [])
+            container.extend(
+                fn for fn in filenames if not fn.startswith("_"))
     return files
 
 
