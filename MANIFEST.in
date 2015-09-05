@@ -1,5 +1,5 @@
 include *.md
-recursive-include dataset/ *.*
+recursive-include pytff/datasets *.*
 include LICENSE
 include README.md
 
