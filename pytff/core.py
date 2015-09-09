@@ -516,9 +516,14 @@ def stack_targets(times, values):
 
         return np.vstack(adjusted)
 
+    def _bool(obj):
+        if isinstance(obj, np.ndarray):
+            return not obj.size
+        return bool(obj)
+
     return (
-        stack(times) if times else np.array([]),
-        stack(values) if values else np.array([]))
+        stack(times) if _bool(times) else np.array([]),
+        stack(values) if _bool(values) else np.array([]))
 
 
 def load_tff_dat(fname, processor=None):
