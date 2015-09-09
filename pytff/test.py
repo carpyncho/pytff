@@ -23,13 +23,16 @@ import unittest
 import tempfile
 import shutil
 import random
+import uuid
 
 import six
 
 import numpy as np
 
+import sh
+
 import pytff
-from pytff import datasets
+from . import datasets, constants
 
 
 # =============================================================================
@@ -183,7 +186,7 @@ class PyTFFFunctionTest(unittest.TestCase):
         asstring = pytff.load_tff_dat(ogle_tff_path)
         with open(ogle_tff_path) as fp:
             asfp = pytff.load_tff_dat(fp)
-        self.assertEquals(asstring, asfp)
+        self.assertEqual(asstring, asfp)
         self.assertIsInstance(asstring, tuple)
         self.assertIsInstance(asfp, tuple)
         self.assertTrue(all(map(lambda e: isinstance(e, tuple), asstring)))
@@ -193,9 +196,9 @@ class PyTFFFunctionTest(unittest.TestCase):
         asstring = pytff.load_tff_dat(ogle_tff_path, lambda gen: rnd)
         with open(ogle_tff_path) as fp:
             asfp = pytff.load_tff_dat(fp, lambda gen: rnd)
-        self.assertEquals(asstring, asfp)
-        self.assertEquals(asfp, rnd)
-        self.assertEquals(asstring, rnd)
+        self.assertEqual(asstring, asfp)
+        self.assertEqual(asfp, rnd)
+        self.assertEqual(asstring, rnd)
 
     def test_load_match_dat(self):
         ogle_mch_path = datasets.get("single_dat", "match.dat")
@@ -203,7 +206,7 @@ class PyTFFFunctionTest(unittest.TestCase):
         asstring = pytff.load_match_dat(ogle_mch_path)
         with open(ogle_mch_path) as fp:
             asfp = pytff.load_match_dat(fp)
-        self.assertEquals(asstring, asfp)
+        self.assertEqual(asstring, asfp)
         self.assertIsInstance(asstring, tuple)
         self.assertIsInstance(asfp, tuple)
         self.assertTrue(all(map(lambda e: isinstance(e, tuple), asstring)))
@@ -213,15 +216,46 @@ class PyTFFFunctionTest(unittest.TestCase):
         asstring = pytff.load_match_dat(ogle_mch_path, lambda gen: rnd)
         with open(ogle_mch_path) as fp:
             asfp = pytff.load_match_dat(fp, lambda gen: rnd)
-        self.assertEquals(asstring, asfp)
-        self.assertEquals(asfp, rnd)
-        self.assertEquals(asstring, rnd)
+        self.assertEqual(asstring, asfp)
+        self.assertEqual(asfp, rnd)
+        self.assertEqual(asstring, rnd)
 
 
 class PyTFFCommandTest(unittest.TestCase):
 
     def setUp(self):
         self.tff = pytff.TFFCommand()
+
+    def test_repr(self):
+        repr(self.tff)
+
+    def test_wrk_path(self):
+        wrk_path = six.text_type(uuid.uuid1()) + six.text_type(random.random())
+        self.tff = pytff.TFFCommand(wrk_path=wrk_path)
+        self.assertEqual(self.tff.wrk_path, wrk_path)
+
+        coriginal = constants.WRK_PATH
+        wrk_path = six.text_type(uuid.uuid1()) + six.text_type(random.random())
+        try:
+            constants.WRK_PATH = wrk_path
+            self.tff = pytff.TFFCommand()
+            self.assertEqual(self.tff.wrk_path, wrk_path)
+        finally:
+            constants.WRK_PATH = coriginal
+
+    def test_tff_path(self):
+        self.assertEqual(self.tff.cmd, sh.Command(constants.TFF_CMD))
+
+        tff_path = 'ls'
+        self.tff = pytff.TFFCommand(tff_path=tff_path)
+        self.assertEqual(self.tff.cmd, sh.Command(tff_path))
+
+    def test_fmt(self):
+        self.assertEqual(self.tff.fmt, "%.5f")
+
+        fmt = six.text_type(uuid.uuid1()) + six.text_type(random.random())
+        self.tff = pytff.TFFCommand(fmt=fmt)
+        self.assertEqual(self.tff.fmt, fmt)
 
     def test_single_data(self):
         ogle_path = datasets.get("single_dat", "ogle.dat")
