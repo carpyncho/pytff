@@ -50,7 +50,7 @@ def do_publish():
     msg = "version {}".format(STR_VERSION)
 
     six.print_(sh.git.commit(a=True, m=msg))
-    #~ six.print_(sh.git.tag(a=STR_VERSION, m=msg))
+    six.print_(sh.git.tag(a=STR_VERSION, m=msg))
 
     six.print_(sh.git.push("origin", "master"))
     six.print_(sh.git.push("origin", "master", tags=True))

@@ -91,13 +91,14 @@ This project is part of `Carpyncho <http://carpyncho.jbcabral.org>`_
     & G. Kupi
 -   The `dataset:single_dat` and `dataset:split_dat` is property of the
     `OGLE Experiment <http://ogle.astrouw.edu.pl/>`_
--   The `dataset:vvv_rrlyrae` is part of
 
 
-## Authors
+Authors
+-------
 
 Juan BC
 
 jbc.develop@gmail.com
 
-[IATE](http://iate.oac.uncor.edu/) - [UNR](http://unr.edu.ar/)
+`IATE <http://iate.oac.uncor.edu/>`_ - `URN <http://unr.edu.ar/>`_
+
