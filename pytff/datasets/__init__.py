@@ -26,8 +26,6 @@ __doc__ = """PyTFF datasets"""
 import os
 import codecs
 
-import six
-
 
 # =============================================================================
 # CONSTANTS
@@ -58,12 +56,12 @@ def info(datasetname):
     """
     dspath = os.path.join(PATH, datasetname)
     path = os.path.join(dspath, "_info.txt")
-    if os.path.isdir(dspath) and os.path.isfile(path):
-        with codecs.open(path, encoding="utf8") as fp:
-            infotext = fp.read()
+    if os.path.isdir(dspath):
+        infotext = u""
+        if os.path.isfile(path):
+            with codecs.open(path, encoding="utf8") as fp:
+                infotext = fp.read()
         return infotext
-    elif os.path.isdir(dspath):
-        return six.u("")
     raise IOError("Dataset do not exists")
 
 
@@ -80,11 +78,3 @@ def ls():
             container.extend(
                 fn for fn in filenames if not fn.startswith("_"))
     return files
-
-
-# =============================================================================
-# MAIN
-# =============================================================================
-
-if __name__ == "__main__":
-    print(__doc__)

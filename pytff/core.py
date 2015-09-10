@@ -518,7 +518,7 @@ def stack_targets(times, values):
 
     def _bool(obj):
         if isinstance(obj, np.ndarray):
-            return not obj.size
+            return bool(obj.size)
         return bool(obj)
 
     return (

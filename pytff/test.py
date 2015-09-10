@@ -61,6 +61,16 @@ class DatasetTest(unittest.TestCase):
     def test_ls(self):
         self.assertEqual(self.files, datasets.ls())
 
+    def test_info(self):
+        for dataset in six.iterkeys(self.files):
+            info = datasets.info(dataset)
+            path = os.path.join(datasets.PATH, dataset, "_info.txt")
+            if info and os.path.isfile(path):
+                with open(path) as fp:
+                    self.assertEqual(info, fp.read())
+            elif not info:
+                self.fail("info of '{}' don't match".format(dataset))
+
     def test_get(self):
         for dirpath, filenames in self.files.items():
             for fname in filenames:
@@ -76,7 +86,7 @@ class DatasetTest(unittest.TestCase):
             datasets.get(dirpath + "_", fname + "_")
 
 
-class PyTFFFunctionTest(unittest.TestCase):
+class FunctionTest(unittest.TestCase):
 
     def test_cache_hash(self):
         data = [
@@ -153,6 +163,12 @@ class PyTFFFunctionTest(unittest.TestCase):
         np.testing.assert_array_equal(stk_times, expected_times)
         np.testing.assert_array_equal(stk_values, expected_values)
 
+        times = np.array([[], [1]])
+        values = np.array([[], [1]])
+        stk_times, stk_values = pytff.stack_targets(times, values)
+        np.testing.assert_array_equal(stk_times, expected_times)
+        np.testing.assert_array_equal(stk_values, expected_values)
+
     def test_stack_targets_same_sizes(self):
         times = [[0, 1, 2], [3, 4, 5]]
         expected_times = np.array([[0., 1., 2.],
@@ -221,13 +237,30 @@ class PyTFFFunctionTest(unittest.TestCase):
         self.assertEqual(asstring, rnd)
 
 
-class PyTFFCommandTest(unittest.TestCase):
+class TFFCommandTest(unittest.TestCase):
 
     def setUp(self):
         self.tff = pytff.TFFCommand()
 
     def test_repr(self):
         repr(self.tff)
+
+    def test_invalid_input_data(self):
+        msg = "'periods' must be 1d array"
+        with six.assertRaisesRegex(self, ValueError, msg):
+            self.tff.analyze([[]], [], [])
+
+        msg = "'times' and 'values' don have the same shape"
+        with six.assertRaisesRegex(self, ValueError, msg):
+                self.tff.analyze([1], [[1]], [[2], [3]])
+
+        msg = (
+            "'times' and 'values' must "
+            "be 2d array with same number rows as elements in 'periods'")
+        with six.assertRaisesRegex(self, ValueError, msg):
+                self.tff.analyze([1], [1], [2])
+        with six.assertRaisesRegex(self, ValueError, msg):
+                self.tff.analyze([1, 2], [[1]], [[2]])
 
     def test_wrk_path(self):
         wrk_path = six.text_type(uuid.uuid1()) + six.text_type(random.random())
