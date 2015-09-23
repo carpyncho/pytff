@@ -88,6 +88,29 @@ class DatasetTest(unittest.TestCase):
 
 class FunctionTest(unittest.TestCase):
 
+    def test_fspace(self):
+        start, stop, num = 0, 2 * np.pi, 100
+
+        ff = {"A_1": 1, "phi_1": 0}
+        ff.update(("A_{}".format(idx), 0) for idx in range(2, 16))
+        ff.update(("phi_{}".format(idx), 0) for idx in range(2, 16))
+
+        x, y = pytff.fspace(ff, start, stop, num)
+        sinx = np.linspace(start, stop, num)
+        siny = np.sin(sinx)
+
+        np.testing.assert_array_equal(x, sinx)
+        np.testing.assert_array_equal(y, siny)
+
+        # with retstep
+        x, y, retstep = pytff.fspace(ff, start, stop, num, retstep=True)
+        sinx, sinrstep = np.linspace(start, stop, num, retstep=True)
+        siny = np.sin(sinx)
+
+        np.testing.assert_array_equal(x, sinx)
+        np.testing.assert_array_equal(y, siny)
+        self.assertEqual(retstep, sinrstep)
+
     def test_cache_hash(self):
         data = [
             six.text_type(random.random()),

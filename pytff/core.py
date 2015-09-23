@@ -356,14 +356,6 @@ class TFFCommand(object):
             -   **A_1, phi_1, A_2, phi_2, ..., A_15, phi_15** The fourier
                 components
 
-            Form of the Fourier decomposition:
-
-            ::
-
-                A_0 + A_1*sin(2*pi*(t(i)-Epoch)*1/Period+Phi_1)
-                      A_2*sin(2*pi*(t(i)-Epoch)*2/Period+Phi_2) +
-                      A_3*sin(2*pi*(t(i)-Epoch)*3/Period+Phi_3) + ...
-
         dff_data: ndarray
             Fourier decompositions, resulting from the DFF analysis.
             Same fields as *tff_data*
@@ -627,3 +619,71 @@ def cache_hash(data):
     if isinstance(data, six.text_type):
         data = data.encode("utf8")
     return hashlib.sha1(data).hexdigest()
+
+
+def fspace(ff, start, stop, num=50, endpoint=True, retstep=False, dtype=None):
+    """Return two arrays. The first one contains the X values and the second
+    one the Y values. This values are generated from the formula
+
+    ::
+
+        y = A_1 * sin(1 * x + phi_1) + A_2 * sin(2 * x + phi_2) +
+            A_3 * sin(3 * x + phi_3) + ... + A_15 * sin(2 * x + phi_15)
+
+    ``A_i`` and ``phi_i`` comes from the dff or tff analysis.
+
+    Parameters
+    ----------
+
+    ff: structured nd array
+        dff or tff Output from :class:`TFFCommand` :method:`analyze`.
+    start : scalar
+        The starting value of the sequence.
+    stop : scalar
+        The end value of the sequence, unless `endpoint` is set to False.
+        In that case, the sequence consists of all but the last of ``num + 1``
+        evenly spaced samples, so that `stop` is excluded.  Note that the step
+        size changes when `endpoint` is False.
+    num : int, optional
+        Number of samples to generate. Default is 50.
+    endpoint : bool, optional
+        If True, `stop` is the last sample. Otherwise, it is not included.
+        Default is True.
+    retstep : bool, optional
+        If True, return (`samples`, `step`), where `step` is the spacing
+        between samples.
+
+    Returns
+    -------
+    x : ndarray
+        There are `num` equally spaced samples in the closed interval
+        ``[start, stop]`` or the half-open interval ``[start, stop)``
+        (depending on whether `endpoint` is True or False).
+    y : ndarray
+        Values from aply the fourier formula to the x values.
+    step : float (only if `retstep` is True)
+        Size of spacing between samples.
+
+    """
+    if retstep:
+        x, step = np.linspace(start, stop, num, endpoint, retstep, dtype)
+    else:
+        x, step = np.linspace(start, stop, num, endpoint, retstep, dtype), None
+
+    y = (
+        ff["A_1"] * np.sin(1 * x + ff["phi_1"]) +
+        ff["A_2"] * np.sin(2 * x + ff["phi_2"]) +
+        ff["A_3"] * np.sin(3 * x + ff["phi_3"]) +
+        ff["A_4"] * np.sin(4 * x + ff["phi_4"]) +
+        ff["A_5"] * np.sin(5 * x + ff["phi_5"]) +
+        ff["A_6"] * np.sin(6 * x + ff["phi_6"]) +
+        ff["A_7"] * np.sin(7 * x + ff["phi_7"]) +
+        ff["A_8"] * np.sin(8 * x + ff["phi_8"]) +
+        ff["A_9"] * np.sin(9 * x + ff["phi_9"]) +
+        ff["A_10"] * np.sin(10 * x + ff["phi_10"]) +
+        ff["A_11"] * np.sin(11 * x + ff["phi_11"]) +
+        ff["A_12"] * np.sin(12 * x + ff["phi_12"]) +
+        ff["A_13"] * np.sin(13 * x + ff["phi_13"]) +
+        ff["A_14"] * np.sin(14 * x + ff["phi_14"]) +
+        ff["A_15"] * np.sin(15 * x + ff["phi_15"]))
+    return (x, y, step) if retstep else (x, y)
