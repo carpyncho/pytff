@@ -89,27 +89,61 @@ class DatasetTest(unittest.TestCase):
 class FunctionTest(unittest.TestCase):
 
     def test_fspace(self):
-        start, stop, num = 0, 2 * np.pi, 100
+        start, stop, num = 0, 2 * np.pi, 1000
 
-        ff = {"A_1": 1, "phi_1": 0}
-        ff.update(("A_{}".format(idx), 0) for idx in range(2, 16))
-        ff.update(("phi_{}".format(idx), 0) for idx in range(2, 16))
+        ffs = [
+            {"period": 2. * np.pi,
+             "A_1": 1, "A_2": 0, "A_3": 0, "A_4": 0, "A_5": 0, "A_6": 0,
+             "A_7": 0, "A_8": 0, "A_9": 0, "A_10": 0, "A_11": 0, "A_12": 0,
+             "A_13": 0, "A_14": 0, "A_15": 0,
+             "phi_1": 0, "phi_2": 0, "phi_3": 0, "phi_4": 0, "phi_5": 0,
+             "phi_6": 0, "phi_7": 0, "phi_8": 0, "phi_9": 0, "phi_10": 0,
+             "phi_11": 0, "phi_12": 0, "phi_13": 0, "phi_14": 0, "phi_15": 0},
 
-        x, y = pytff.fspace(ff, start, stop, num)
-        sinx = np.linspace(start, stop, num)
-        siny = np.sin(sinx)
+            {"period": 4. * np.pi,
+             "A_1": 1, "A_2": 0, "A_3": 0, "A_4": 0, "A_5": 0, "A_6": 0,
+             "A_7": 0, "A_8": 0, "A_9": 0, "A_10": 0, "A_11": 0, "A_12": 0,
+             "A_13": 0, "A_14": 0, "A_15": 0,
+             "phi_1": 0, "phi_2": 0, "phi_3": 0, "phi_4": 0, "phi_5": 0,
+             "phi_6": 0, "phi_7": 0, "phi_8": 0, "phi_9": 0, "phi_10": 0,
+             "phi_11": 0, "phi_12": 0, "phi_13": 0, "phi_14": 0, "phi_15": 0},
 
-        np.testing.assert_array_equal(x, sinx)
-        np.testing.assert_array_equal(y, siny)
+            {"period": 2. * np.pi,
+             "A_1": 1, "A_2": 0, "A_3": 0, "A_4": 0, "A_5": 0, "A_6": 0,
+             "A_7": 0, "A_8": 0, "A_9": 0, "A_10": 0, "A_11": 0, "A_12": 0,
+             "A_13": 0, "A_14": 0, "A_15": 0,
+             "phi_1": 2, "phi_2": 0, "phi_3": 0, "phi_4": 0, "phi_5": 0,
+             "phi_6": 0, "phi_7": 0, "phi_8": 0, "phi_9": 0, "phi_10": 0,
+             "phi_11": 0, "phi_12": 0, "phi_13": 0, "phi_14": 0, "phi_15": 0}
+        ]
 
-        # with retstep
-        x, y, retstep = pytff.fspace(ff, start, stop, num, retstep=True)
-        sinx, sinrstep = np.linspace(start, stop, num, retstep=True)
-        siny = np.sin(sinx)
+        sinx_fs = [1, 0.5, 1]
+        sinx_ps = [0, 0, 2]
 
-        np.testing.assert_array_equal(x, sinx)
-        np.testing.assert_array_equal(y, siny)
-        self.assertEqual(retstep, sinrstep)
+        for ff, sinx_f, sinx_p in zip(ffs, sinx_fs, sinx_ps):
+            x, y = pytff.fspace(ff, start, stop, num)
+            sinx = np.linspace(start, stop, num)
+            siny = np.sin(sinx * sinx_f + sinx_p)
+
+            self.assertEquals(len(x), num)
+            self.assertEquals(len(x), len(sinx))
+            np.testing.assert_allclose(x, sinx)
+            self.assertEquals(len(y), num)
+            self.assertEquals(len(y), len(siny))
+            np.testing.assert_allclose(y, siny)
+
+            # with retstep
+            x, y, retstep = pytff.fspace(ff, start, stop, num, retstep=True)
+            sinx, sinrstep = np.linspace(start, stop, num, retstep=True)
+            siny = np.sin(sinx * sinx_f + sinx_p)
+
+            self.assertEquals(len(x), num)
+            self.assertEquals(len(x), len(sinx))
+            np.testing.assert_allclose(x, sinx)
+            self.assertEquals(len(y), num)
+            self.assertEquals(len(y), len(siny))
+            np.testing.assert_allclose(y, siny)
+            self.assertEqual(retstep, sinrstep)
 
     def test_cache_hash(self):
         data = [

@@ -669,21 +669,21 @@ def fspace(ff, start, stop, num=50, endpoint=True, retstep=False, dtype=None):
         x, step = np.linspace(start, stop, num, endpoint, retstep, dtype)
     else:
         x, step = np.linspace(start, stop, num, endpoint, retstep, dtype), None
-
+    phased_x = (2. * np.pi * x) / ff["period"]
     y = (
-        ff["A_1"] * np.sin(1 * x + ff["phi_1"]) +
-        ff["A_2"] * np.sin(2 * x + ff["phi_2"]) +
-        ff["A_3"] * np.sin(3 * x + ff["phi_3"]) +
-        ff["A_4"] * np.sin(4 * x + ff["phi_4"]) +
-        ff["A_5"] * np.sin(5 * x + ff["phi_5"]) +
-        ff["A_6"] * np.sin(6 * x + ff["phi_6"]) +
-        ff["A_7"] * np.sin(7 * x + ff["phi_7"]) +
-        ff["A_8"] * np.sin(8 * x + ff["phi_8"]) +
-        ff["A_9"] * np.sin(9 * x + ff["phi_9"]) +
-        ff["A_10"] * np.sin(10 * x + ff["phi_10"]) +
-        ff["A_11"] * np.sin(11 * x + ff["phi_11"]) +
-        ff["A_12"] * np.sin(12 * x + ff["phi_12"]) +
-        ff["A_13"] * np.sin(13 * x + ff["phi_13"]) +
-        ff["A_14"] * np.sin(14 * x + ff["phi_14"]) +
-        ff["A_15"] * np.sin(15 * x + ff["phi_15"]))
+        ff["A_1"] * np.sin(1 * phased_x + ff["phi_1"]) +
+        ff["A_2"] * np.sin(2 * phased_x + ff["phi_2"]) +
+        ff["A_3"] * np.sin(3 * phased_x + ff["phi_3"]) +
+        ff["A_4"] * np.sin(4 * phased_x + ff["phi_4"]) +
+        ff["A_5"] * np.sin(5 * phased_x + ff["phi_5"]) +
+        ff["A_6"] * np.sin(6 * phased_x + ff["phi_6"]) +
+        ff["A_7"] * np.sin(7 * phased_x + ff["phi_7"]) +
+        ff["A_8"] * np.sin(8 * phased_x + ff["phi_8"]) +
+        ff["A_9"] * np.sin(9 * phased_x + ff["phi_9"]) +
+        ff["A_10"] * np.sin(10 * phased_x + ff["phi_10"]) +
+        ff["A_11"] * np.sin(11 * phased_x + ff["phi_11"]) +
+        ff["A_12"] * np.sin(12 * phased_x + ff["phi_12"]) +
+        ff["A_13"] * np.sin(13 * phased_x + ff["phi_13"]) +
+        ff["A_14"] * np.sin(14 * phased_x + ff["phi_14"]) +
+        ff["A_15"] * np.sin(15 * phased_x + ff["phi_15"]))
     return (x, y, step) if retstep else (x, y)
