@@ -125,11 +125,11 @@ class FunctionTest(unittest.TestCase):
             sinx = np.linspace(start, stop, num)
             siny = np.sin(sinx * sinx_f + sinx_p)
 
-            self.assertEquals(len(x), num)
-            self.assertEquals(len(x), len(sinx))
+            self.assertEqual(len(x), num)
+            self.assertEqual(len(x), len(sinx))
             np.testing.assert_allclose(x, sinx)
-            self.assertEquals(len(y), num)
-            self.assertEquals(len(y), len(siny))
+            self.assertEqual(len(y), num)
+            self.assertEqual(len(y), len(siny))
             np.testing.assert_allclose(y, siny)
 
             # with retstep
@@ -137,11 +137,11 @@ class FunctionTest(unittest.TestCase):
             sinx, sinrstep = np.linspace(start, stop, num, retstep=True)
             siny = np.sin(sinx * sinx_f + sinx_p)
 
-            self.assertEquals(len(x), num)
-            self.assertEquals(len(x), len(sinx))
+            self.assertEqual(len(x), num)
+            self.assertEqual(len(x), len(sinx))
             np.testing.assert_allclose(x, sinx)
-            self.assertEquals(len(y), num)
-            self.assertEquals(len(y), len(siny))
+            self.assertEqual(len(y), num)
+            self.assertEqual(len(y), len(siny))
             np.testing.assert_allclose(y, siny)
             self.assertEqual(retstep, sinrstep)
 

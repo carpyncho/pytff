@@ -21,4 +21,4 @@ For more info please check: http://www.konkoly.hu/staff/kovacs/tff.html
 
 from .core import (  # noqa
     TFFCommand, loadtarget, stack_targets,
-    load_tff_dat, load_match_dat, cache_hash, fspace)
+    load_tff_dat, load_match_dat, cache_hash, fspace, evaluate)

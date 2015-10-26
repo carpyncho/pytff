@@ -44,6 +44,7 @@ CONF_FILE_PATH = os.path.join(CONF_DIR_PATH, "pytff.rc")
 DEFAULTS = {
     "tff_cmd": "tff",
     "wrk_path": None,
+    "fmt": "%.5f"
 }
 
 
@@ -71,6 +72,8 @@ config = dict(list(DEFAULTS.items()) + list(config.items(PRJ)))
 # =============================================================================
 # CONSTANTS
 # =============================================================================
+
+FMT = config["fmt"]
 
 TFF_CMD = config["tff_cmd"]
 
