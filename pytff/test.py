@@ -428,6 +428,25 @@ class TFFCommandTest(unittest.TestCase):
                 linenos = len(fp.readlines())
             self.assertTrue(len(times[idx]) == len(values[idx]) == linenos)
 
+    def test_big_period(self):
+        bp_path = datasets.get("big_period", "star.dat")
+        bp_tff_path = datasets.get("big_period", "tff.dat")
+        bp_dff_path = datasets.get("big_period", "dff.dat")
+        bp_mch_path = datasets.get("big_period", "match.dat")
+
+        bp_tff = pytff.load_tff_dat(bp_tff_path, self.tff.process_tff)
+        bp_dff = pytff.load_tff_dat(bp_dff_path, self.tff.process_dff)
+        bp_mch = pytff.load_match_dat(bp_mch_path, self.tff.process_matchs)
+
+        times, values = pytff.loadtarget(bp_path)
+        periods = np.array([153.798519147])
+
+        tff_data, dff_data, mch_data = self.tff.analyze(periods, times, values)
+
+        np.testing.assert_array_equal(tff_data, bp_tff)
+        np.testing.assert_array_equal(dff_data, bp_dff)
+        np.testing.assert_array_equal(mch_data, bp_mch)
+
 # =============================================================================
 # MAIN
 # =============================================================================

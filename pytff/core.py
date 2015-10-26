@@ -539,6 +539,7 @@ def load_tff_dat(fname, processor=None):
     def gen(fp):
         buff = []
         for line in fp:
+            line = line.replace("*************", "0.0")
             # new source?
             if buff and not line.startswith(" "):
                 yield tuple(buff)
@@ -594,6 +595,7 @@ def load_match_dat(fname, processor=None):
         buff, lineno = [], 0
         for line in fp:
             if line.strip():
+                line = line.replace("*************", "0.0")
                 buff.extend(line.strip().rsplit(None, 4))
                 lineno += 1
                 if lineno >= nmatch + 1:
