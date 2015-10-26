@@ -1,0 +1,17 @@
+*
+***************************************************************
+*  This is the input parameter file for code  'tff'           *
+*  Please check the source for the meaning of the parameters. *
+*  For changing parameters please use space only between      *
+*  columns 11-20. No exponential format please. Do not delete *
+*  or add any lines. Comments can be added from column 22-80. *
+***************************************************************
+*
+ntbin    = 300.00000
+nmin     = 10.00000
+mindp    = 10.00000
+snr1min  = 10.00000
+nmatch   = 10.00000
+dph      = 0.00001
+asig     = 555.00000
+jfit     = -1.00000

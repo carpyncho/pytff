@@ -1,0 +1,3 @@
+Deisgned for pytff
+Property of the OGLE Experiment
+http://github.com/carpyncho/pytff
