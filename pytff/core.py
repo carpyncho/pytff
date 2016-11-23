@@ -33,7 +33,7 @@ from . import constants
 class TFFCommand(object):
 
     def __init__(self, tff_path=constants.TFF_CMD,
-                 wrk_path=None, fmt=constants.FMT):
+                 wrk_path=None, clean_wrk_path=False, fmt=constants.FMT):
         """Creates a new instance of tff command
 
         Params
@@ -63,7 +63,9 @@ class TFFCommand(object):
             self._clean_wrk_path = False
         else:
             self._wrk_path = tempfile.mkdtemp(suffix="_tff")
-            self._clean_wrk_path = True
+            
+        self._clean_wrk_path = clean_wrk_pat
+        if self._clean_wrk_pat:
             atexit.register(
                 shutil.rmtree, path=self._wrk_path, ignore_errors=True)
 
@@ -117,6 +119,10 @@ class TFFCommand(object):
     @property
     def targets_cache(self):
         return self._targets_cache
+    
+    @property
+    def clean_wrk_pat(self):
+        return self._clean_wrk_pat
 
     # =========================================================================
     # HELPERS
