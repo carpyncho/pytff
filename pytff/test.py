@@ -396,17 +396,17 @@ class TFFCommandTest(unittest.TestCase):
         values = [[0, 1, 2], [3, 4, 5, 7]]
         self.tff.analyze(periods, times, values)
 
-    def test_wrkpath_is_removed_when_is_temp(self):
+    def test_wrkpath_is_removed_when_clean_is_true(self):
         # remove clasic temp
         path = self.tff.wrk_path
         self.assertTrue(os.path.exists(path) and os.path.isdir(path))
         del self.tff
         self.assertFalse(os.path.exists(path) and os.path.isdir(path))
 
-    def test_wrkpath_is_not_removed_when_is_not_temp(self):
+    def test_wrkpath_is_not_removed_when_clean_is_false(self):
         path = tempfile.mkdtemp(suffix="_tff_test")
 
-        self.tff = pytff.TFFCommand(wrk_path=path)
+        self.tff = pytff.TFFCommand(wrk_path=path, clean_wrk_path=False)
         self.assertTrue(os.path.exists(path) and os.path.isdir(path))
         del self.tff
         self.assertTrue(os.path.exists(path) and os.path.isdir(path))
@@ -446,6 +446,7 @@ class TFFCommandTest(unittest.TestCase):
         np.testing.assert_array_equal(tff_data, bp_tff)
         np.testing.assert_array_equal(dff_data, bp_dff)
         np.testing.assert_array_equal(mch_data, bp_mch)
+
 
 # =============================================================================
 # MAIN
