@@ -15,6 +15,7 @@ import hashlib
 import uuid
 import atexit
 import shutil
+import re
 from contextlib import contextmanager
 
 import six
@@ -545,7 +546,7 @@ def load_tff_dat(fname, processor=None):
     def gen(fp):
         buff = []
         for line in fp:
-            line = line.replace("*************", "0.0")
+            line = re.sub(r"\*{2,}", "nan", line)  # remove al ****...
             # new source?
             if buff and not line.startswith(" "):
                 yield tuple(buff)
@@ -601,7 +602,7 @@ def load_match_dat(fname, processor=None):
         buff, lineno = [], 0
         for line in fp:
             if line.strip():
-                line = line.replace("*************", "0.0")
+                line = re.sub(r"\*{2,}", "nan", line)  # remove al ****...
                 buff.extend(line.strip().rsplit(None, 4))
                 lineno += 1
                 if lineno >= nmatch + 1:

@@ -443,9 +443,25 @@ class TFFCommandTest(unittest.TestCase):
 
         tff_data, dff_data, mch_data = self.tff.analyze(periods, times, values)
 
-        np.testing.assert_array_equal(tff_data, bp_tff)
-        np.testing.assert_array_equal(dff_data, bp_dff)
-        np.testing.assert_array_equal(mch_data, bp_mch)
+        for name in bp_tff.dtype.names:
+            np.testing.assert_array_equal(tff_data[name], bp_tff[name])
+        for name in bp_dff.dtype.names:
+            np.testing.assert_array_equal(dff_data[name], bp_dff[name])
+        for name in bp_mch.dtype.names:
+            np.testing.assert_array_equal(mch_data[name], bp_mch[name])
+
+    def test_asterisk_in_first_commponents(self):
+        dat = "\n".join([
+            "90",
+            "  0.9972900000    0.0000 215.562     111  0.1040",
+            " *******  0.6175 *******  5.9440 90.4794  4.9784 24.0941  3.9973  2.9758  2.9903",  # noqa
+            "  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000",  # noqa
+            "  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000"])  # noqa
+        dat = six.StringIO(dat)
+        parsed = pytff.load_tff_dat(dat, self.tff.fourier_proc_default)
+
+        self.assertTrue(np.all(np.isnan(parsed["A_1"])))
+        self.assertTrue(np.all(np.isnan(parsed["A_2"])))
 
 
 # =============================================================================

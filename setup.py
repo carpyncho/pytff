@@ -30,7 +30,7 @@ from setuptools import setup, find_packages
 # CONSTANTS
 #==============================================================================
 
-VERSION = ('0', '7')
+VERSION = ('0', '8')
 
 STR_VERSION = ".".join(VERSION)
 
