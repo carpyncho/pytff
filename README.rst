@@ -100,5 +100,5 @@ Juan BC
 
 jbc.develop@gmail.com
 
-`IATE <http://iate.oac.uncor.edu/>`_ - `URN <http://unr.edu.ar/>`_
+`IATE <http://iate.oac.uncor.edu/>`_ - `UNR <http://unr.edu.ar/>`_
 
